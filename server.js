@@ -15,7 +15,26 @@ const PROGRESS_RE = /\[download\]\s+([\d.]+)% of\s+([\d.]+\w+) at\s+([\d.]+\w+\/
 // buscamos una copia local descargada por scripts/install-deps.sh (funciona
 // en hosting compartido sin sudo) y si no existe, caemos al PATH del sistema.
 const LOCAL_YTDLP_PATH = path.join(__dirname, 'bin', 'yt-dlp');
-const YTDLP_BIN = fs.existsSync(LOCAL_YTDLP_PATH) ? LOCAL_YTDLP_PATH : 'yt-dlp';
+const localYtdlpExists = fs.existsSync(LOCAL_YTDLP_PATH);
+if (localYtdlpExists) {
+  // Algunos paneles de hosting (Hostinger incluido) pierden el bit de
+  // ejecución al desplegar/reempaquetar archivos, aunque el script de
+  // instalación ya lo haya marcado como ejecutable. Lo reafirmamos siempre.
+  try {
+    fs.chmodSync(LOCAL_YTDLP_PATH, 0o755);
+  } catch (err) {
+    console.warn(`[startup] No se pudo poner ${LOCAL_YTDLP_PATH} como ejecutable: ${err.message}`);
+  }
+}
+const YTDLP_BIN = localYtdlpExists ? LOCAL_YTDLP_PATH : 'yt-dlp';
+
+if (ffmpegPath) {
+  try {
+    fs.chmodSync(ffmpegPath, 0o755);
+  } catch (err) {
+    console.warn(`[startup] No se pudo poner ${ffmpegPath} como ejecutable: ${err.message}`);
+  }
+}
 const FFMPEG_LOCATION_ARGS = ffmpegPath ? ['--ffmpeg-location', ffmpegPath] : [];
 
 // jobId -> SSE response, para avisarle al navegador el progreso real de yt-dlp.
