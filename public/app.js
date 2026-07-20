@@ -33,6 +33,7 @@ async function loadQualities() {
     data = await res.json();
     if (!res.ok) {
       DebugLog.log('Error al obtener calidades', data.error);
+      if (data.detail) DebugLog.log('Detalle del servidor', data.detail);
       return;
     }
   } catch (err) {

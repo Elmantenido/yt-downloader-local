@@ -89,7 +89,9 @@ app.get('/api/formats', (req, res) => {
   proc.on('close', (code) => {
     if (code !== 0) {
       console.log(`[formats] yt-dlp salió con código ${code}: ${stderr.slice(-500)}`);
-      if (!res.headersSent) res.status(500).json({ error: 'No se pudo obtener información del video.' });
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'No se pudo obtener información del video.', detail: stderr.slice(-2000) });
+      }
       return;
     }
 
