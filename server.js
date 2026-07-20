@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const ffmpegPath = require('ffmpeg-static');
 
 const app = express();
@@ -11,22 +11,27 @@ const PORT = process.env.PORT || 3000;
 const YOUTUBE_URL_RE = /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]+/i;
 const PROGRESS_RE = /\[download\]\s+([\d.]+)% of\s+([\d.]+\w+) at\s+([\d.]+\w+\/s|Unknown speed) ETA\s+([\d:]+|Unknown)/;
 
-// yt-dlp no se puede instalar vía npm de forma confiable, así que primero
-// buscamos una copia local descargada por scripts/install-deps.sh (funciona
-// en hosting compartido sin sudo) y si no existe, caemos al PATH del sistema.
-const LOCAL_YTDLP_PATH = path.join(__dirname, 'bin', 'yt-dlp');
-const localYtdlpExists = fs.existsSync(LOCAL_YTDLP_PATH);
-if (localYtdlpExists) {
-  // Algunos paneles de hosting (Hostinger incluido) pierden el bit de
-  // ejecución al desplegar/reempaquetar archivos, aunque el script de
-  // instalación ya lo haya marcado como ejecutable. Lo reafirmamos siempre.
+function worksAsExecutable(binPath) {
+  if (!fs.existsSync(binPath)) return false;
   try {
-    fs.chmodSync(LOCAL_YTDLP_PATH, 0o755);
+    fs.chmodSync(binPath, 0o755);
   } catch (err) {
-    console.warn(`[startup] No se pudo poner ${LOCAL_YTDLP_PATH} como ejecutable: ${err.message}`);
+    // seguimos e intentamos igual: puede que ya tenga permisos suficientes
   }
+  const result = spawnSync(binPath, ['--version']);
+  return !result.error && result.status === 0;
 }
-const YTDLP_BIN = localYtdlpExists ? LOCAL_YTDLP_PATH : 'yt-dlp';
+
+// yt-dlp no se puede instalar vía npm de forma confiable. scripts/install-deps.sh
+// lo descarga sin sudo, primero dentro del proyecto y, si esa carpeta no
+// permite ejecutar binarios (algunos hostings restringen esto: "failed to map
+// segment from shared object"), en /tmp como respaldo. Probamos ambas rutas
+// en el mismo orden y, si ninguna sirve, caemos al PATH del sistema.
+const YTDLP_CANDIDATES = [
+  path.join(__dirname, 'bin', 'yt-dlp'),
+  '/tmp/yt-downloader-bin/yt-dlp',
+];
+const YTDLP_BIN = YTDLP_CANDIDATES.find(worksAsExecutable) || 'yt-dlp';
 
 if (ffmpegPath) {
   try {
@@ -248,19 +253,19 @@ function cleanup(dir) {
   fs.rm(dir, { recursive: true, force: true }, () => {});
 }
 
-function checkDependency(bin) {
-  const { spawnSync } = require('child_process');
-  const result = spawnSync(bin, ['--version']);
-  if (result.error) {
-    console.warn(`[startup] ADVERTENCIA: no se encontró "${bin}" en el PATH del servidor. Las descargas fallarán hasta que se instale y esté disponible para este proceso.`);
+function checkDependency(bin, versionFlag) {
+  const result = spawnSync(bin, [versionFlag]);
+  if (result.error || result.status !== 0) {
+    const reason = result.error ? result.error.message : (result.stderr || '').toString().trim();
+    console.warn(`[startup] ADVERTENCIA: "${bin}" no funciona en este servidor (${reason}). Las descargas fallarán hasta que se resuelva.`);
     return false;
   }
   console.log(`[startup] ${bin} OK (${String(result.stdout).trim().split('\n')[0]})`);
   return true;
 }
 
-checkDependency(YTDLP_BIN);
-checkDependency(ffmpegPath || 'ffmpeg');
+checkDependency(YTDLP_BIN, '--version');
+checkDependency(ffmpegPath || 'ffmpeg', '-version');
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
