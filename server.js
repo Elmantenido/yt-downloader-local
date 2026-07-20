@@ -218,6 +218,20 @@ function cleanup(dir) {
   fs.rm(dir, { recursive: true, force: true }, () => {});
 }
 
+function checkDependency(bin) {
+  const { spawnSync } = require('child_process');
+  const result = spawnSync(bin, ['--version']);
+  if (result.error) {
+    console.warn(`[startup] ADVERTENCIA: no se encontró "${bin}" en el PATH del servidor. Las descargas fallarán hasta que se instale y esté disponible para este proceso.`);
+    return false;
+  }
+  console.log(`[startup] ${bin} OK (${String(result.stdout).trim().split('\n')[0]})`);
+  return true;
+}
+
+checkDependency('yt-dlp');
+checkDependency('ffmpeg');
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
