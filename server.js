@@ -211,7 +211,8 @@ app.get('/api/download', (req, res) => {
       console.log(`[download] yt-dlp salió con código ${code}: ${stderr.slice(-500)}`);
       cleanup(tmpDir);
       const error = 'Falló la descarga.';
-      if (jobId) sendProgress(jobId, 'error', { error });
+      const detail = stderr.slice(-500);
+      if (jobId) sendProgress(jobId, 'error', { error, detail });
       if (!res.headersSent) {
         res.status(500).json({ error, detail: stderr.slice(-2000) });
       }
