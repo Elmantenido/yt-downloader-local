@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Descargador de YouTube (uso personal)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="card">
+    <h1>Descargador de YouTube</h1>
+    <p class="subtitle">Herramienta de uso personal. Pega un enlace y elige el formato.</p>
+
+    <input
+      id="url"
+      type="text"
+      placeholder="https://www.youtube.com/watch?v=..."
+      autocomplete="off"
+    />
+
+    <div class="buttons">
+      <button id="btn-mp4" onclick="download('mp4')">Descargar MP4</button>
+      <button id="btn-mp3" onclick="download('mp3')">Descargar MP3</button>
+    </div>
+
+    <div id="quality-grid" class="quality-grid" hidden></div>
+
+    <p id="status" class="status"></p>
+
+    <div id="debug-panel" class="debug-panel" hidden>
+      <div class="debug-header">
+        <span>Registro de depuración</span>
+        <button id="debug-copy" type="button">Copiar log</button>
+      </div>
+      <pre id="debug-output" class="debug-output"></pre>
+    </div>
+  </main>
+
+  <script src="debug.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

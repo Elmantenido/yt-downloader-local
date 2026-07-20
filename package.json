@@ -1,0 +1,13 @@
+{
+  "name": "yt-downloader-local",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Herramienta local para descargar videos de YouTube en MP4/MP3, solo para uso personal.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
