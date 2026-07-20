@@ -1,47 +1,29 @@
 #!/usr/bin/env bash
-# Instala yt-dlp y ffmpeg si no están disponibles en el sistema. Pensado para
-# correr en un VPS Linux (Debian/Ubuntu) como parte de "npm install".
-# No falla el despliegue si algo no se puede instalar: solo avisa. El
-# servidor (server.js) igual verifica y advierte al iniciar si faltan.
+# Descarga yt-dlp dentro del propio proyecto (carpeta bin/) como parte de
+# "npm install". No requiere sudo ni permisos de sistema: sirve tanto para un
+# VPS con acceso root como para hosting compartido/paneles web sin terminal.
+# ffmpeg se resuelve aparte con el paquete npm "ffmpeg-static" (ver server.js).
 set -uo pipefail
 
-YTDLP_BIN="/usr/local/bin/yt-dlp"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+BIN_DIR="$PROJECT_ROOT/bin"
+YTDLP_BIN="$BIN_DIR/yt-dlp"
 
 log() { echo "[install-deps] $1"; }
 
-can_sudo() {
-  [ "$(id -u)" = "0" ] && return 0
-  command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null && return 0
-  return 1
-}
-
-as_root() {
-  if [ "$(id -u)" = "0" ]; then
-    "$@"
-  else
-    sudo "$@"
-  fi
-}
-
-if command -v ffmpeg >/dev/null 2>&1; then
-  log "ffmpeg ya está instalado: $(command -v ffmpeg)"
-elif command -v apt-get >/dev/null 2>&1 && can_sudo; then
-  log "Instalando ffmpeg con apt-get..."
-  as_root apt-get update -y && as_root apt-get install -y ffmpeg
-else
-  log "No se pudo instalar ffmpeg automáticamente (falta apt-get o permisos de sudo)."
-  log "Instálalo manualmente, por ejemplo: sudo apt install -y ffmpeg"
+if [ -x "$YTDLP_BIN" ]; then
+  log "yt-dlp local ya presente en $YTDLP_BIN"
+  exit 0
 fi
 
-if command -v yt-dlp >/dev/null 2>&1; then
-  log "yt-dlp ya está instalado: $(command -v yt-dlp)"
-elif can_sudo; then
-  log "Descargando yt-dlp a $YTDLP_BIN..."
-  as_root curl -sL "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -o "$YTDLP_BIN" \
-    && as_root chmod a+rx "$YTDLP_BIN" \
-    && log "yt-dlp instalado."
+mkdir -p "$BIN_DIR"
+
+log "Descargando yt-dlp a $YTDLP_BIN..."
+if curl -fsSL "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -o "$YTDLP_BIN"; then
+  chmod u+x "$YTDLP_BIN"
+  log "yt-dlp instalado correctamente."
 else
-  log "No se pudo instalar yt-dlp automáticamente (sin permisos de sudo)."
-  log "Instálalo manualmente, por ejemplo:"
-  log "  sudo curl -sL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o $YTDLP_BIN && sudo chmod a+rx $YTDLP_BIN"
+  log "No se pudo descargar yt-dlp (¿sin acceso a internet saliente desde el hosting?)."
+  log "El servidor seguirá buscando un 'yt-dlp' en el PATH del sistema como respaldo."
 fi

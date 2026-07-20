@@ -9,6 +9,7 @@
     "postinstall": "bash scripts/install-deps.sh || true"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "ffmpeg-static": "^5.3.0"
   }
 }

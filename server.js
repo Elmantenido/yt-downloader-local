@@ -3,12 +3,20 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { spawn } = require('child_process');
+const ffmpegPath = require('ffmpeg-static');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const YOUTUBE_URL_RE = /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]+/i;
 const PROGRESS_RE = /\[download\]\s+([\d.]+)% of\s+([\d.]+\w+) at\s+([\d.]+\w+\/s|Unknown speed) ETA\s+([\d:]+|Unknown)/;
+
+// yt-dlp no se puede instalar vía npm de forma confiable, así que primero
+// buscamos una copia local descargada por scripts/install-deps.sh (funciona
+// en hosting compartido sin sudo) y si no existe, caemos al PATH del sistema.
+const LOCAL_YTDLP_PATH = path.join(__dirname, 'bin', 'yt-dlp');
+const YTDLP_BIN = fs.existsSync(LOCAL_YTDLP_PATH) ? LOCAL_YTDLP_PATH : 'yt-dlp';
+const FFMPEG_LOCATION_ARGS = ffmpegPath ? ['--ffmpeg-location', ffmpegPath] : [];
 
 // jobId -> SSE response, para avisarle al navegador el progreso real de yt-dlp.
 const progressClients = new Map();
@@ -48,7 +56,7 @@ app.get('/api/formats', (req, res) => {
     return res.status(400).json({ error: 'Enlace de YouTube no válido.' });
   }
 
-  const proc = spawn('yt-dlp', ['-J', '--no-playlist', '--no-warnings', url]);
+  const proc = spawn(YTDLP_BIN, ['-J', '--no-playlist', '--no-warnings', url]);
 
   let stdout = '';
   let stderr = '';
@@ -139,10 +147,10 @@ app.get('/api/download', (req, res) => {
       : 'bv*[vcodec^=avc1]+ba[acodec^=mp4a]/bv*+ba/b';
 
   const args = format === 'mp4'
-    ? ['-f', videoFormat, '--merge-output-format', 'mp4', '--no-playlist', '--newline', '-o', outputTemplate, url]
-    : ['-x', '--audio-format', 'mp3', '--audio-quality', '0', '--no-playlist', '--newline', '-o', outputTemplate, url];
+    ? ['-f', videoFormat, '--merge-output-format', 'mp4', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, '-o', outputTemplate, url]
+    : ['-x', '--audio-format', 'mp3', '--audio-quality', '0', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, '-o', outputTemplate, url];
 
-  const proc = spawn('yt-dlp', args);
+  const proc = spawn(YTDLP_BIN, args);
 
   let stderr = '';
   let stdoutBuffer = '';
@@ -229,8 +237,8 @@ function checkDependency(bin) {
   return true;
 }
 
-checkDependency('yt-dlp');
-checkDependency('ffmpeg');
+checkDependency(YTDLP_BIN);
+checkDependency(ffmpegPath || 'ffmpeg');
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
