@@ -42,6 +42,13 @@ try_install() {
   return 1
 }
 
+if [ -n "${YTDLP_EXTRA_DIR:-}" ]; then
+  log "Probando primero en YTDLP_EXTRA_DIR=$YTDLP_EXTRA_DIR..."
+  if try_install "$YTDLP_EXTRA_DIR"; then
+    exit 0
+  fi
+fi
+
 if try_install "$PROJECT_ROOT/bin"; then
   exit 0
 fi

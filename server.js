@@ -28,9 +28,13 @@ function worksAsExecutable(binPath) {
 // segment from shared object"), en /tmp como respaldo. Probamos ambas rutas
 // en el mismo orden y, si ninguna sirve, caemos al PATH del sistema.
 const YTDLP_CANDIDATES = [
+  // Carpeta creada a mano por el usuario (fuera del pipeline de build/deploy,
+  // que en algunos hostings viene con restricciones extra de ejecución).
+  // Se configura con la variable de entorno YTDLP_EXTRA_DIR.
+  process.env.YTDLP_EXTRA_DIR ? path.join(process.env.YTDLP_EXTRA_DIR, 'yt-dlp') : null,
   path.join(__dirname, 'bin', 'yt-dlp'),
   '/tmp/yt-downloader-bin/yt-dlp',
-];
+].filter(Boolean);
 const YTDLP_BIN = YTDLP_CANDIDATES.find(worksAsExecutable) || 'yt-dlp';
 
 if (ffmpegPath) {
