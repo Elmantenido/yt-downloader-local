@@ -51,6 +51,59 @@ const progressClients = new Map();
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Endpoint temporal de diagnóstico: ayuda a encontrar, desde la perspectiva
+// real del proceso Node en el hosting, una carpeta donde sí se puedan
+// ejecutar binarios. Se puede borrar una vez resuelto el problema de hosting.
+app.get('/api/debug-paths', (req, res) => {
+  const sourceCandidate = YTDLP_CANDIDATES.find((c) => fs.existsSync(c));
+  const testDirs = [
+    os.homedir(),
+    path.join(os.homedir(), 'ytdlp-bin'),
+    path.join(os.homedir(), 'nodejs'),
+    path.join(os.homedir(), 'nodejs', 'ytdlp-bin'),
+    path.join(__dirname, '..'),
+    path.join(__dirname, '..', 'ytdlp-bin'),
+    os.tmpdir(),
+  ];
+
+  const results = testDirs.map((dir) => {
+    const entry = { dir };
+    try {
+      entry.exists = fs.existsSync(dir);
+      if (!entry.exists) {
+        fs.mkdirSync(dir, { recursive: true });
+        entry.created = true;
+      }
+      entry.listing = fs.readdirSync(dir).slice(0, 30);
+
+      if (sourceCandidate) {
+        const testFile = path.join(dir, 'yt-dlp-exec-test');
+        fs.copyFileSync(sourceCandidate, testFile);
+        fs.chmodSync(testFile, 0o755);
+        const result = spawnSync(testFile, ['--version']);
+        entry.executable = !result.error && result.status === 0;
+        entry.execError = result.error ? result.error.message : (result.stderr || '').toString().trim().slice(0, 200);
+        fs.rmSync(testFile, { force: true });
+      } else {
+        entry.executable = null;
+        entry.note = 'No hay ningún binario yt-dlp descargado todavía para copiar y probar.';
+      }
+    } catch (err) {
+      entry.error = err.message;
+    }
+    return entry;
+  });
+
+  res.json({
+    homedir: os.homedir(),
+    cwd: process.cwd(),
+    dirname: __dirname,
+    ytdlpExtraDirEnv: process.env.YTDLP_EXTRA_DIR || null,
+    currentYtdlpBin: YTDLP_BIN,
+    results,
+  });
+});
+
 app.get('/api/progress/:jobId', (req, res) => {
   res.set({
     'Content-Type': 'text/event-stream',
