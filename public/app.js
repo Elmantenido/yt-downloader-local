@@ -1,11 +1,50 @@
 const urlInput = document.getElementById('url');
 const status = document.getElementById('status');
 const qualityGrid = document.getElementById('quality-grid');
+const menuScreen = document.getElementById('menu-screen');
+const downloaderScreen = document.getElementById('downloader-screen');
+const downloaderTitle = document.getElementById('downloader-title');
+const downloaderSubtitle = document.getElementById('downloader-subtitle');
 
-const YOUTUBE_URL_RE = /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]+/i;
+const PLATFORMS = {
+  youtube: {
+    label: 'YouTube',
+    urlRegex: /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]+/i,
+    placeholder: 'https://www.youtube.com/watch?v=...',
+  },
+  facebook: {
+    label: 'Facebook',
+    urlRegex: /^https?:\/\/(www\.|m\.|web\.)?(facebook\.com\/|fb\.watch\/)/i,
+    placeholder: 'https://www.facebook.com/.../videos/...',
+  },
+};
 
+let currentPlatform = null;
 let formatsAbortController = null;
 let debounceTimer = null;
+
+function openPlatform(name) {
+  currentPlatform = name;
+  const platform = PLATFORMS[name];
+
+  urlInput.value = '';
+  urlInput.placeholder = platform.placeholder;
+  downloaderTitle.textContent = `Descargador de ${platform.label}`;
+  downloaderSubtitle.textContent = 'Pega un enlace y elige el formato.';
+  status.textContent = '';
+  qualityGrid.hidden = true;
+  qualityGrid.innerHTML = '';
+
+  menuScreen.hidden = true;
+  downloaderScreen.hidden = false;
+  urlInput.focus();
+}
+
+function closePlatform() {
+  currentPlatform = null;
+  downloaderScreen.hidden = true;
+  menuScreen.hidden = false;
+}
 
 function formatBytes(bytes) {
   if (!bytes) return '';
@@ -18,7 +57,7 @@ async function loadQualities() {
   qualityGrid.hidden = true;
   qualityGrid.innerHTML = '';
 
-  if (!YOUTUBE_URL_RE.test(url)) return;
+  if (!currentPlatform || !PLATFORMS[currentPlatform].urlRegex.test(url)) return;
 
   if (formatsAbortController) formatsAbortController.abort();
   formatsAbortController = new AbortController();
@@ -71,7 +110,7 @@ function download(format, formatId) {
   const url = urlInput.value.trim();
 
   if (!url) {
-    status.textContent = 'Pega un enlace de YouTube primero.';
+    status.textContent = 'Pega un enlace primero.';
     return;
   }
 
