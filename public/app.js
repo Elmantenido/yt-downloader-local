@@ -86,7 +86,8 @@ async function loadQualities() {
   for (const q of data.qualities) {
     const dimensions = q.width && q.height ? `${q.width}x${q.height}` : `${q.height}p`;
     const sizeStr = formatBytes(q.filesize);
-    const badgeText = sizeStr ? `${dimensions} · ${sizeStr}` : dimensions;
+    const sizeLabel = sizeStr ? (q.filesizeApprox ? `~${sizeStr}` : sizeStr) : '';
+    const badgeText = sizeLabel ? `${dimensions} · ${sizeLabel}` : dimensions;
 
     const card = document.createElement('button');
     card.type = 'button';

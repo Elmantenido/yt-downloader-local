@@ -126,16 +126,27 @@ app.get('/api/formats', (req, res) => {
 
       const qualities = Array.from(byResolution.values())
         .sort((a, b) => b.height - a.height || (b.fps || 0) - (a.fps || 0))
-        .map((f) => ({
-          formatId: f.format_id,
-          height: f.height,
-          fps: f.fps || null,
-          width: f.width || null,
-          label: f.width && f.height
-            ? `${f.width}x${f.height} · ${f.fps || 30} fps`
-            : `${f.height}p${f.fps ? ` · ${f.fps} fps` : ''}`,
-          filesize: f.filesize || f.filesize_approx || null,
-        }));
+        .map((f) => {
+          // Algunos formatos (frecuente en Facebook, o streams HLS/DASH de
+          // YouTube) no traen filesize ni filesize_approx. En ese caso
+          // estimamos el tamaño a partir del bitrate y la duración del video.
+          let filesize = f.filesize || f.filesize_approx || null;
+          if (!filesize && f.tbr && info.duration) {
+            filesize = Math.round((f.tbr * 1000 / 8) * info.duration);
+          }
+
+          return {
+            formatId: f.format_id,
+            height: f.height,
+            fps: f.fps || null,
+            width: f.width || null,
+            label: f.width && f.height
+              ? `${f.width}x${f.height} · ${f.fps || 30} fps`
+              : `${f.height}p${f.fps ? ` · ${f.fps} fps` : ''}`,
+            filesize,
+            filesizeApprox: !(f.filesize) ,
+          };
+        });
 
       res.json({ title: info.title, thumbnail: info.thumbnail, qualities });
     } catch (err) {
