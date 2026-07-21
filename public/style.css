@@ -128,6 +128,10 @@ button:hover:not(:disabled) {
   opacity: 1;
 }
 
+.quality-thumb {
+  position: relative;
+}
+
 .quality-card img {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -136,16 +140,24 @@ button:hover:not(:disabled) {
   background: #000;
 }
 
-.quality-card .quality-label {
-  padding: 6px 8px;
-  font-size: 0.8rem;
+.quality-badge {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 0.65rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
-.quality-card .quality-size {
-  padding: 0 8px 8px;
-  font-size: 0.7rem;
+.quality-card .quality-label {
+  padding: 6px 8px;
+  font-size: 0.75rem;
   color: var(--muted);
+  min-height: 1.4em;
 }
 
 .platform-menu {

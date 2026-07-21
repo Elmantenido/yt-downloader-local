@@ -84,13 +84,19 @@ async function loadQualities() {
   DebugLog.log('Calidades recibidas', data.qualities);
 
   for (const q of data.qualities) {
+    const dimensions = q.width && q.height ? `${q.width}x${q.height}` : `${q.height}p`;
+    const sizeStr = formatBytes(q.filesize);
+    const badgeText = sizeStr ? `${dimensions} · ${sizeStr}` : dimensions;
+
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'quality-card';
     card.innerHTML = `
-      <img src="${data.thumbnail}" alt="${data.title || ''} ${q.label}" loading="lazy" />
-      <span class="quality-label">${q.label}</span>
-      <span class="quality-size">${formatBytes(q.filesize)}</span>
+      <div class="quality-thumb">
+        <img src="${data.thumbnail}" alt="${data.title || ''} ${q.label}" loading="lazy" />
+        <span class="quality-badge">${badgeText}</span>
+      </div>
+      <span class="quality-label">${q.fps ? `${q.fps} fps` : ''}</span>
     `;
     card.addEventListener('click', () => download('mp4', q.formatId));
     qualityGrid.appendChild(card);
