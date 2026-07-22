@@ -9,6 +9,7 @@
     "postinstall": "bash scripts/install-deps.sh || true"
   },
   "dependencies": {
+    "dotenv": "^16.6.1",
     "express": "^4.19.2",
     "express-basic-auth": "^1.2.1",
     "express-rate-limit": "^8.6.0",
