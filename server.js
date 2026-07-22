@@ -5,6 +5,9 @@ const os = require('os');
 const { spawn, spawnSync } = require('child_process');
 const ffmpegPath = require('ffmpeg-static');
 const pLimit = require('p-limit');
+const helmet = require('helmet');
+const basicAuth = require('express-basic-auth');
+const rateLimit = require('express-rate-limit');
 
 // Cada descarga lanza yt-dlp + ffmpeg (CPU y ancho de banda pesados). Sin
 // límite, muchas descargas simultáneas saturarían el servidor. Las que
@@ -13,8 +16,43 @@ const pLimit = require('p-limit');
 const DOWNLOAD_CONCURRENCY = parseInt(process.env.DOWNLOAD_CONCURRENCY || '4', 10);
 const downloadLimit = pLimit(DOWNLOAD_CONCURRENCY);
 
+// Si yt-dlp se queda colgado (p. ej. por una conexión de red caída), sin
+// timeout el proceso ocuparía un cupo de la cola para siempre.
+const FORMATS_TIMEOUT_MS = 2 * 60 * 1000;
+const DOWNLOAD_TIMEOUT_MS = 30 * 60 * 1000;
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// contentSecurityPolicy desactivado: el HTML usa atributos onclick="" inline,
+// que la CSP por defecto de helmet bloquearía. El resto de protecciones
+// (X-Frame-Options, X-Content-Type-Options, etc.) quedan activas.
+app.use(helmet({ contentSecurityPolicy: false }));
+app.set('trust proxy', 1);
+
+// Sin usuario/contraseña configurados, cualquiera con la IP puede usar el
+// servidor como descargador gratuito (consumiendo tu ancho de banda y CPU).
+// Se activa solo si se definen ambas variables de entorno.
+if (process.env.APP_USERNAME && process.env.APP_PASSWORD) {
+  app.use(
+    basicAuth({
+      users: { [process.env.APP_USERNAME]: process.env.APP_PASSWORD },
+      challenge: true,
+      realm: 'Descargador de videos',
+    })
+  );
+  console.log('[startup] Autenticación activada (APP_USERNAME/APP_PASSWORD).');
+} else {
+  console.warn(
+    '[startup] ADVERTENCIA: sin APP_USERNAME/APP_PASSWORD configurados, el servidor queda ABIERTO a cualquiera. ' +
+    'Defínelos como variables de entorno antes de exponerlo en una IP pública.'
+  );
+}
+
+// Límite de peticiones por IP: no evita que alguien autenticado abuse, pero
+// frena scripts que intenten martillar el servidor con muchas peticiones.
+const formatsRateLimit = rateLimit({ windowMs: 5 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false });
+const downloadRateLimit = rateLimit({ windowMs: 5 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
 
 const YOUTUBE_URL_RE = /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]+/i;
 const FACEBOOK_URL_RE = /^https?:\/\/(www\.|m\.|web\.)?(facebook\.com\/|fb\.watch\/)/i;
@@ -91,7 +129,7 @@ function sendProgress(jobId, event, data) {
   }
 }
 
-app.get('/api/formats', (req, res) => {
+app.get('/api/formats', formatsRateLimit, (req, res) => {
   const { url } = req.query;
   console.log(`[formats] solicitado url=${url}`);
 
@@ -99,7 +137,7 @@ app.get('/api/formats', (req, res) => {
     return res.status(400).json({ error: 'Enlace no válido. Debe ser de YouTube, Facebook, Twitter/X o Instagram.' });
   }
 
-  const proc = spawn(YTDLP_BIN, ['-J', '--no-playlist', '--no-warnings', url]);
+  const proc = spawn(YTDLP_BIN, ['-J', '--no-playlist', '--no-warnings', url], { timeout: FORMATS_TIMEOUT_MS });
 
   let stdout = '';
   let stderr = '';
@@ -169,7 +207,7 @@ app.get('/api/formats', (req, res) => {
   });
 });
 
-app.get('/api/download', (req, res) => {
+app.get('/api/download', downloadRateLimit, (req, res) => {
   const { url, format, jobId, quality, formatId } = req.query;
   console.log(`[download] solicitado url=${url} format=${format}`);
 
@@ -222,7 +260,7 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
     ? ['-f', videoFormat, '--merge-output-format', 'mp4', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, '-o', outputTemplate, url]
     : ['-x', '--audio-format', 'mp3', '--audio-quality', '0', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, '-o', outputTemplate, url];
 
-  const proc = spawn(YTDLP_BIN, args);
+  const proc = spawn(YTDLP_BIN, args, { timeout: DOWNLOAD_TIMEOUT_MS });
 
   let stderr = '';
   let stdoutBuffer = '';
