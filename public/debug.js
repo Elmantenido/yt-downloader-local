@@ -27,11 +27,33 @@ const DebugLog = (() => {
     log('Promesa rechazada sin manejar', e.reason && e.reason.message ? e.reason.message : String(e.reason));
   });
 
+  function markCopied() {
+    copyBtn.textContent = 'Copiado';
+    setTimeout(() => { copyBtn.textContent = 'Copiar log'; }, 1500);
+  }
+
   copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
-      copyBtn.textContent = 'Copiado';
-      setTimeout(() => { copyBtn.textContent = 'Copiar log'; }, 1500);
-    });
+    const text = lines.join('\n');
+
+    // navigator.clipboard solo existe en contextos seguros (HTTPS o
+    // localhost); por IP+HTTP plano el navegador ni siquiera define la API.
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(markCopied);
+      return;
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      markCopied();
+    } finally {
+      textarea.remove();
+    }
   });
 
   return { log };

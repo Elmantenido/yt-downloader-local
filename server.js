@@ -101,6 +101,13 @@ if (ffmpegPath) {
 }
 const FFMPEG_LOCATION_ARGS = ffmpegPath ? ['--ffmpeg-location', ffmpegPath] : [];
 
+// YouTube suele pedir verificación "no soy un robot" a IPs de VPS/datacenter,
+// aunque el video sea público. Pasarle cookies de una sesión real logueada
+// evita ese bloqueo. El archivo no se versiona (ver .gitignore) por contener
+// credenciales de sesión.
+const COOKIES_FILE = process.env.YTDLP_COOKIES_FILE || path.join(__dirname, 'cookies.txt');
+const COOKIES_ARGS = fs.existsSync(COOKIES_FILE) ? ['--cookies', COOKIES_FILE] : [];
+
 // jobId -> SSE response, para avisarle al navegador el progreso real de yt-dlp.
 const progressClients = new Map();
 
@@ -139,7 +146,7 @@ app.get('/api/formats', formatsRateLimit, (req, res) => {
     return res.status(400).json({ error: 'Enlace no válido. Debe ser de YouTube, Facebook, Twitter/X o Instagram.' });
   }
 
-  const proc = spawn(YTDLP_BIN, ['-J', '--no-playlist', '--no-warnings', url], { timeout: FORMATS_TIMEOUT_MS });
+  const proc = spawn(YTDLP_BIN, ['-J', '--no-playlist', '--no-warnings', ...COOKIES_ARGS, url], { timeout: FORMATS_TIMEOUT_MS });
 
   let stdout = '';
   let stderr = '';
@@ -259,8 +266,8 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
       : 'bv*[vcodec^=avc1]+ba[acodec^=mp4a]/bv*+ba/b';
 
   const args = format === 'mp4'
-    ? ['-f', videoFormat, '--merge-output-format', 'mp4', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, '-o', outputTemplate, url]
-    : ['-x', '--audio-format', 'mp3', '--audio-quality', '0', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, '-o', outputTemplate, url];
+    ? ['-f', videoFormat, '--merge-output-format', 'mp4', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, ...COOKIES_ARGS, '-o', outputTemplate, url]
+    : ['-x', '--audio-format', 'mp3', '--audio-quality', '0', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, ...COOKIES_ARGS, '-o', outputTemplate, url];
 
   const proc = spawn(YTDLP_BIN, args, { timeout: DOWNLOAD_TIMEOUT_MS });
 
