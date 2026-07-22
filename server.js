@@ -4,6 +4,14 @@ const fs = require('fs');
 const os = require('os');
 const { spawn, spawnSync } = require('child_process');
 const ffmpegPath = require('ffmpeg-static');
+const pLimit = require('p-limit');
+
+// Cada descarga lanza yt-dlp + ffmpeg (CPU y ancho de banda pesados). Sin
+// límite, muchas descargas simultáneas saturarían el servidor. Las que
+// excedan el límite esperan en cola en vez de arrancar todas a la vez.
+// Ajustable según los recursos del VPS con la variable de entorno.
+const DOWNLOAD_CONCURRENCY = parseInt(process.env.DOWNLOAD_CONCURRENCY || '4', 10);
+const downloadLimit = pLimit(DOWNLOAD_CONCURRENCY);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -178,6 +186,22 @@ app.get('/api/download', (req, res) => {
     return res.status(400).json({ error });
   }
 
+  if (jobId && downloadLimit.activeCount >= DOWNLOAD_CONCURRENCY) {
+    const position = downloadLimit.pendingCount + 1;
+    console.log(`[download] en cola (posición ${position}, ${downloadLimit.activeCount} activas)`);
+    sendProgress(jobId, 'queued', { position, active: downloadLimit.activeCount });
+  }
+
+  downloadLimit(() => runDownload({ url, format, jobId, quality, formatId, res }));
+});
+
+function runDownload({ url, format, jobId, quality, formatId, res }) {
+  // p-limit solo libera el cupo de concurrencia cuando esta promesa se
+  // resuelve, así que se resuelve al final de cada camino posible (éxito,
+  // error de spawn, código de salida distinto de cero, envío completado).
+  return new Promise((resolveJob) => {
+  if (jobId) sendProgress(jobId, 'started', {});
+
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ytdl-'));
   const outputTemplate = path.join(tmpDir, '%(title).150B.%(ext)s');
 
@@ -231,6 +255,7 @@ app.get('/api/download', (req, res) => {
     if (!res.headersSent) {
       res.status(500).json({ error: 'No se pudo iniciar yt-dlp: ' + err.message });
     }
+    resolveJob();
   });
 
   proc.on('close', (code) => {
@@ -243,6 +268,7 @@ app.get('/api/download', (req, res) => {
       if (!res.headersSent) {
         res.status(500).json({ error, detail: stderr.slice(-2000) });
       }
+      resolveJob();
       return;
     }
 
@@ -257,6 +283,7 @@ app.get('/api/download', (req, res) => {
       if (!res.headersSent) {
         res.status(500).json({ error });
       }
+      resolveJob();
       return;
     }
 
@@ -267,9 +294,11 @@ app.get('/api/download', (req, res) => {
       if (err) console.log(`[download] error al enviar el archivo: ${err.message}`);
       else console.log('[download] envío completado');
       cleanup(tmpDir);
+      resolveJob();
     });
   });
-});
+  });
+}
 
 function cleanup(dir) {
   fs.rm(dir, { recursive: true, force: true }, () => {});

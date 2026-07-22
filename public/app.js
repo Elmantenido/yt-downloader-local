@@ -158,6 +158,17 @@ function download(format, formatId) {
     DebugLog.log('EventSource onerror (nativo)', `readyState=${source.readyState}`);
   };
 
+  source.addEventListener('queued', (e) => {
+    const { position, active } = JSON.parse(e.data);
+    status.textContent = `En cola... posición ${position} (${active} descargas activas ahora mismo).`;
+    DebugLog.log('queued', e.data);
+  });
+
+  source.addEventListener('started', () => {
+    status.textContent = 'Iniciando descarga...';
+    DebugLog.log('started recibido');
+  });
+
   source.addEventListener('progress', (e) => {
     const { percent, total, speed, eta } = JSON.parse(e.data);
     status.textContent = `Descargando... ${percent}% de ${total} a ${speed} (ETA ${eta})`;
