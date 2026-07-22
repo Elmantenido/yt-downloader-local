@@ -197,6 +197,14 @@ button:hover:not(:disabled) {
   background: #1877f2;
 }
 
+.platform-twitter {
+  background: #000000;
+}
+
+.platform-instagram {
+  background: linear-gradient(45deg, #feda75, #d62976, #4f5bd5);
+}
+
 .back-button {
   flex: none;
   background: transparent;

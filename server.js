@@ -10,7 +10,12 @@ const PORT = process.env.PORT || 3000;
 
 const YOUTUBE_URL_RE = /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]+/i;
 const FACEBOOK_URL_RE = /^https?:\/\/(www\.|m\.|web\.)?(facebook\.com\/|fb\.watch\/)/i;
-const SUPPORTED_URL_RE = new RegExp(`(${YOUTUBE_URL_RE.source})|(${FACEBOOK_URL_RE.source})`, 'i');
+const TWITTER_URL_RE = /^https?:\/\/(www\.|mobile\.)?(twitter\.com|x\.com)\//i;
+const INSTAGRAM_URL_RE = /^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|stories)\//i;
+const SUPPORTED_URL_RE = new RegExp(
+  `(${YOUTUBE_URL_RE.source})|(${FACEBOOK_URL_RE.source})|(${TWITTER_URL_RE.source})|(${INSTAGRAM_URL_RE.source})`,
+  'i'
+);
 const PROGRESS_RE = /\[download\]\s+([\d.]+)% of\s+([\d.]+\w+) at\s+([\d.]+\w+\/s|Unknown speed) ETA\s+([\d:]+|Unknown)/;
 
 function worksAsExecutable(binPath) {
@@ -83,7 +88,7 @@ app.get('/api/formats', (req, res) => {
   console.log(`[formats] solicitado url=${url}`);
 
   if (typeof url !== 'string' || !SUPPORTED_URL_RE.test(url)) {
-    return res.status(400).json({ error: 'Enlace no válido. Debe ser de YouTube o Facebook.' });
+    return res.status(400).json({ error: 'Enlace no válido. Debe ser de YouTube, Facebook, Twitter/X o Instagram.' });
   }
 
   const proc = spawn(YTDLP_BIN, ['-J', '--no-playlist', '--no-warnings', url]);
@@ -162,7 +167,7 @@ app.get('/api/download', (req, res) => {
 
   if (typeof url !== 'string' || !SUPPORTED_URL_RE.test(url)) {
     console.log('[download] rechazado: URL no válida');
-    const error = 'Enlace no válido. Debe ser de YouTube o Facebook.';
+    const error = 'Enlace no válido. Debe ser de YouTube, Facebook, Twitter/X o Instagram.';
     if (jobId) sendProgress(jobId, 'error', { error });
     return res.status(400).json({ error });
   }

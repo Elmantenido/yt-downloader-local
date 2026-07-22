@@ -17,6 +17,16 @@ const PLATFORMS = {
     urlRegex: /^https?:\/\/(www\.|m\.|web\.)?(facebook\.com\/|fb\.watch\/)/i,
     placeholder: 'https://www.facebook.com/.../videos/...',
   },
+  twitter: {
+    label: 'Twitter / X',
+    urlRegex: /^https?:\/\/(www\.|mobile\.)?(twitter\.com|x\.com)\//i,
+    placeholder: 'https://x.com/usuario/status/...',
+  },
+  instagram: {
+    label: 'Instagram',
+    urlRegex: /^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|stories)\//i,
+    placeholder: 'https://www.instagram.com/reel/...',
+  },
 };
 
 let currentPlatform = null;
