@@ -33,6 +33,14 @@ let currentPlatform = null;
 let formatsAbortController = null;
 let debounceTimer = null;
 
+function makeJobId() {
+  // crypto.randomUUID también requiere un contexto seguro (HTTPS o
+  // localhost); por IP+HTTP plano no existe. No hace falta que sea
+  // criptográficamente segura, solo única para trackear el progreso.
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 function openPlatform(name) {
   currentPlatform = name;
   const platform = PLATFORMS[name];
@@ -131,7 +139,7 @@ function download(format, formatId) {
     return;
   }
 
-  const jobId = crypto.randomUUID();
+  const jobId = makeJobId();
   let target = `/api/download?url=${encodeURIComponent(url)}&format=${format}&jobId=${jobId}`;
   if (formatId) target += `&formatId=${encodeURIComponent(formatId)}`;
 
