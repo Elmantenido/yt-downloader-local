@@ -10,6 +10,7 @@ const pLimit = require('p-limit');
 const helmet = require('helmet');
 const basicAuth = require('express-basic-auth');
 const rateLimit = require('express-rate-limit');
+const TRANSLATIONS = require('./public/translations.js');
 
 // Cada descarga lanza yt-dlp + ffmpeg (CPU y ancho de banda pesados). Sin
 // límite, muchas descargas simultáneas saturarían el servidor. Las que
@@ -107,14 +108,120 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // El idioma se decide por la ruta, no solo por un botón que cambia texto en
 // el lugar: así cada idioma (/en, /es, /fr...) es una URL real que se puede
-// compartir o guardar en favoritos. Todas sirven el mismo index.html;
-// i18n.js aplica el idioma correcto en el navegador según la ruta.
+// compartir o guardar en favoritos. Todas parten del mismo index.html, pero
+// el servidor le inyecta el <title>/meta/JSON-LD de ESE idioma antes de
+// mandarlo (ver renderIndexHtml): así un rastreador que no ejecute el JS del
+// cliente (i18n.js solo corrige el DOM ya en el navegador) ve contenido
+// distinto por idioma en vez de las 25 rutas con el mismo HTML en inglés.
 const LANGUAGE_CODES = [
   'ar', 'bn', 'cs', 'de', 'en', 'es', 'fa', 'fr', 'hi', 'it', 'ja', 'ko',
   'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'vi', 'zh', 'id', 'ms', 'th',
 ];
+const RTL_CODES = new Set(['ar', 'fa']);
+const SITE_ORIGIN = 'https://instadownr.com';
+// Formato "xx_YY" que espera og:locale; si un idioma no está listado cae a "en_US".
+const OG_LOCALES = {
+  ar: 'ar_AR', bn: 'bn_IN', cs: 'cs_CZ', de: 'de_DE', en: 'en_US', es: 'es_ES',
+  fa: 'fa_IR', fr: 'fr_FR', hi: 'hi_IN', it: 'it_IT', ja: 'ja_JP', ko: 'ko_KR',
+  nl: 'nl_NL', pl: 'pl_PL', pt: 'pt_PT', ro: 'ro_RO', ru: 'ru_RU', sk: 'sk_SK',
+  sv: 'sv_SE', tr: 'tr_TR', vi: 'vi_VN', zh: 'zh_CN', id: 'id_ID', ms: 'ms_MY', th: 'th_TH',
+};
+
+const INDEX_TEMPLATE = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Evita que texto traducido con "</" cierre el <script> antes de tiempo si
+// alguna vez incluye ese literal (buena práctica al incrustar JSON en HTML).
+function jsonLdScript(data) {
+  return `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
+}
+
+function buildFaqSchema(dict) {
+  const mainEntity = [];
+  for (let i = 1; i <= 8; i++) {
+    const question = dict[`faq${i}_q`];
+    const answer = dict[`faq${i}_a`];
+    if (!question || !answer) continue;
+    mainEntity.push({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: { '@type': 'Answer', text: answer },
+    });
+  }
+  return { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity };
+}
+
+function buildAppSchema({ code, title, description, url }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Instagram Download',
+    url,
+    description,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any',
+    inLanguage: code,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  };
+}
+
+// rel=canonical apunta a esta misma página (no a /en), y los rel=alternate
+// hreflang le dicen a los buscadores que las 25 rutas de idioma son versiones
+// del mismo contenido, no páginas duplicadas — así indexan cada una por
+// separado. (El sitemap.xml ya trae esto mismo; repetirlo en el <head> cubre
+// también a rastreadores que no procesan el sitemap o no ejecutan JS.)
+function buildHeadExtras({ code, dict, title, description, url }) {
+  const locale = OG_LOCALES[code] || 'en_US';
+  const hreflangLinks = LANGUAGE_CODES
+    .map((c) => `  <link rel="alternate" hreflang="${c}" href="${SITE_ORIGIN}/${c}" />`)
+    .join('\n');
+
+  return [
+    `  <link rel="canonical" href="${url}" />`,
+    hreflangLinks,
+    `  <link rel="alternate" hreflang="x-default" href="${SITE_ORIGIN}/en" />`,
+    '  <meta property="og:type" content="website" />',
+    '  <meta property="og:site_name" content="Instagram Download" />',
+    `  <meta property="og:url" content="${url}" />`,
+    `  <meta property="og:title" content="${escapeHtml(title)}" />`,
+    `  <meta property="og:description" content="${escapeHtml(description)}" />`,
+    `  <meta property="og:locale" content="${locale}" />`,
+    '  <meta name="twitter:card" content="summary" />',
+    `  <meta name="twitter:title" content="${escapeHtml(title)}" />`,
+    `  <meta name="twitter:description" content="${escapeHtml(description)}" />`,
+    jsonLdScript(buildAppSchema({ code, title, description, url })),
+    jsonLdScript(buildFaqSchema(dict)),
+  ].join('\n');
+}
+
+function renderIndexHtml(code) {
+  const dict = TRANSLATIONS[code] || TRANSLATIONS.en;
+  const dir = RTL_CODES.has(code) ? 'rtl' : 'ltr';
+  const title = `${dict.hero_title} — Instagram Download`;
+  const description = dict.hero_subtitle;
+  const url = `${SITE_ORIGIN}/${code}`;
+
+  return INDEX_TEMPLATE
+    .replace('<html lang="en">', `<html lang="${code}" dir="${dir}">`)
+    .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(title)}</title>`)
+    .replace(
+      /<meta name="description" content="[^"]*" \/>/,
+      `<meta name="description" content="${escapeHtml(description)}" />`
+    )
+    .replace('</head>', `${buildHeadExtras({ code, dict, title, description, url })}\n</head>`);
+}
+
 app.get(LANGUAGE_CODES.map((code) => `/${code}`), (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const code = req.path.slice(1);
+  res.send(renderIndexHtml(code));
 });
 
 app.get('/api/progress/:jobId', (req, res) => {
