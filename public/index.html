@@ -20,9 +20,12 @@
         <a href="#about" data-i18n="nav_about">About</a>
         <a href="#faq" data-i18n="nav_faq">FAQ</a>
       </nav>
-      <div class="lang-switch" role="group" aria-label="Language">
-        <a href="/en" class="lang-btn" data-lang="en">EN</a>
-        <a href="/es" class="lang-btn" data-lang="es">ES</a>
+      <div class="lang-switch">
+        <button type="button" id="lang-toggle" class="lang-toggle" aria-haspopup="true" aria-expanded="false">
+          <span id="lang-toggle-label">EN</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <ul id="lang-menu" class="lang-menu" hidden></ul>
       </div>
     </div>
   </header>

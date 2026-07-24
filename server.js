@@ -100,10 +100,14 @@ const progressClients = new Map();
 app.use(express.static(path.join(__dirname, 'public')));
 
 // El idioma se decide por la ruta, no solo por un botón que cambia texto en
-// el lugar: así /en y /es son URLs reales que se pueden compartir o guardar
-// en favoritos. Ambas sirven el mismo index.html; i18n.js aplica el idioma
-// correcto en el navegador según la ruta.
-app.get(['/en', '/es'], (req, res) => {
+// el lugar: así cada idioma (/en, /es, /fr...) es una URL real que se puede
+// compartir o guardar en favoritos. Todas sirven el mismo index.html;
+// i18n.js aplica el idioma correcto en el navegador según la ruta.
+const LANGUAGE_CODES = [
+  'ar', 'bn', 'cs', 'de', 'en', 'es', 'fa', 'fr', 'hi', 'it', 'ja', 'ko',
+  'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'vi', 'zh', 'id', 'ms', 'th',
+];
+app.get(LANGUAGE_CODES.map((code) => `/${code}`), (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
