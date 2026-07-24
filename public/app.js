@@ -107,6 +107,15 @@ function setFetching(isFetching) {
   btnFetchText.textContent = isFetching ? I18N.t('btn_fetching') : I18N.t('btn_fetch');
 }
 
+// Dentro de la barra de búsqueda: "Paste" cuando está vacía, o "Clear" +
+// "Download" cuando ya hay un link escrito/pegado.
+function updateInputActions() {
+  const hasText = urlInput.value.trim().length > 0;
+  btnPaste.hidden = hasText;
+  btnClear.hidden = !hasText;
+  btnFetch.hidden = !hasText;
+}
+
 async function fetchInfo() {
   const url = urlInput.value.trim();
   hideResult();
@@ -179,17 +188,22 @@ async function fetchInfo() {
 }
 
 urlInput.addEventListener('input', () => {
+  updateInputActions();
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(fetchInfo, 600);
 });
 urlInput.addEventListener('paste', () => {
-  setTimeout(fetchInfo, 50);
+  setTimeout(() => {
+    updateInputActions();
+    fetchInfo();
+  }, 50);
 });
 
 btnFetch.addEventListener('click', fetchInfo);
 
 btnClear.addEventListener('click', () => {
   urlInput.value = '';
+  updateInputActions();
   hideResult();
   hideError();
   status.textContent = '';
@@ -206,6 +220,7 @@ btnPaste.addEventListener('click', async () => {
       const text = await navigator.clipboard.readText();
       if (text) {
         urlInput.value = text.trim();
+        updateInputActions();
         fetchInfo();
         return;
       }
@@ -215,6 +230,8 @@ btnPaste.addEventListener('click', async () => {
   }
   urlInput.focus();
 });
+
+updateInputActions();
 
 btnDownloadVideo.addEventListener('click', () => download('mp4', bestVideoFormatId));
 btnDownloadAudio.addEventListener('click', () => download('mp3'));
