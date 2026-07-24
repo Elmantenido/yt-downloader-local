@@ -276,7 +276,7 @@ button:active:not(:disabled) {
 /* Main fetch/download button */
 
 .btn-download {
-  margin: 12px auto 0;
+  margin: 0 auto 14px;
   padding: 11px 22px;
   border-radius: 60px;
   color: white;
@@ -375,6 +375,10 @@ button:active:not(:disabled) {
   background: #000;
 }
 
+.result-thumb[hidden] {
+  display: none;
+}
+
 .thumb-play {
   position: absolute;
   inset: 0;
@@ -382,6 +386,10 @@ button:active:not(:disabled) {
   align-items: center;
   justify-content: center;
   pointer-events: none;
+}
+
+.thumb-play[hidden] {
+  display: none;
 }
 
 .thumb-play svg {
@@ -542,6 +550,14 @@ button:active:not(:disabled) {
   align-items: center;
   gap: 10px;
   font-size: 0.88rem;
+}
+
+/* Una clase que fija "display" (flex/grid) le gana en especificidad al
+   comportamiento nativo de [hidden] (misma especificidad, pero la nuestra
+   viene después en la cascada) — sin esto, el recuadro nunca se ocultaba de
+   verdad, solo se veía vacío mientras no tuviera texto. */
+.error-box[hidden] {
+  display: none;
 }
 
 .error-box svg {

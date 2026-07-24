@@ -34,6 +34,14 @@
         <p class="hero-subtitle" data-i18n="hero_subtitle">Paste a public Instagram link and save it to your device — fast, free, and in the original quality. No app, no login, no watermark.</p>
 
         <div class="download-box">
+          <button id="btn-fetch" class="btn-download" type="button">
+            <span id="fetch-spinner" class="spinner" hidden aria-hidden="true"></span>
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span id="btn-fetch-text" data-i18n="btn_fetch">DOWNLOAD</span>
+          </button>
+
           <div class="input-row">
             <label for="url" class="sr-only">Paste Instagram video link here</label>
             <svg class="input-ig-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -63,14 +71,6 @@
               </button>
             </div>
           </div>
-
-          <button id="btn-fetch" class="btn-download" type="button">
-            <span id="fetch-spinner" class="spinner" hidden aria-hidden="true"></span>
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span id="btn-fetch-text" data-i18n="btn_fetch">DOWNLOAD</span>
-          </button>
 
           <aside class="fair-use-notice" aria-label="Fair use notice" data-i18n="fair_use_notice">
             For personal, offline use only. Please respect the original creator's rights.
