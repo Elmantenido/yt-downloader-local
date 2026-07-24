@@ -77,6 +77,11 @@ async function loadQualities() {
 
   if (!currentPlatform || !PLATFORMS[currentPlatform].urlRegex.test(url)) return;
 
+  // YouTube en el VPS pasa por una API de pago (Apify) que no ofrece una
+  // llamada gratuita para solo listar calidades, así que se usan los botones
+  // fijos de MP4/MP3 en vez de la cuadrícula con miniaturas.
+  if (currentPlatform === 'youtube') return;
+
   if (formatsAbortController) formatsAbortController.abort();
   formatsAbortController = new AbortController();
 

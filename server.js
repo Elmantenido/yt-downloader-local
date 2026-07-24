@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { spawn, spawnSync } = require('child_process');
+const https = require('https');
 const ffmpegPath = require('ffmpeg-static');
 const pLimit = require('p-limit');
 const helmet = require('helmet');
@@ -107,6 +108,15 @@ const FFMPEG_LOCATION_ARGS = ffmpegPath ? ['--ffmpeg-location', ffmpegPath] : []
 // credenciales de sesión.
 const COOKIES_FILE = process.env.YTDLP_COOKIES_FILE || path.join(__dirname, 'cookies.txt');
 const COOKIES_ARGS = fs.existsSync(COOKIES_FILE) ? ['--cookies', COOKIES_FILE] : [];
+
+// YouTube bloquea las IPs de datacenter incluso con cookies (ver hallazgos
+// documentados en el proyecto). Como alternativa de pago, un actor de Apify
+// resuelve el video desde su propia infraestructura y devuelve un archivo ya
+// listo en su storage, evitando el bloqueo por completo. Se activa solo si
+// se configura APIFY_API_TOKEN; si no, YouTube sigue intentándose con yt-dlp
+// (funciona bien en local/Mac, donde la IP no está marcada).
+const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN || null;
+const APIFY_ACTOR = 'streamers~youtube-video-downloader';
 
 // jobId -> SSE response, para avisarle al navegador el progreso real de yt-dlp.
 const progressClients = new Map();
@@ -247,6 +257,11 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
   // resuelve, así que se resuelve al final de cada camino posible (éxito,
   // error de spawn, código de salida distinto de cero, envío completado).
   return new Promise((resolveJob) => {
+  if (APIFY_API_TOKEN && YOUTUBE_URL_RE.test(url)) {
+    runYoutubeViaApify({ url, format, jobId, res, resolveJob });
+    return;
+  }
+
   if (jobId) sendProgress(jobId, 'started', {});
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ytdl-'));
@@ -344,6 +359,106 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
       resolveJob();
     });
   });
+  });
+}
+
+async function runYoutubeViaApify({ url, format, jobId, res, resolveJob }) {
+  if (jobId) sendProgress(jobId, 'started', {});
+
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ytdl-apify-'));
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
+
+    let apifyRes;
+    try {
+      apifyRes = await fetch(
+        `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${APIFY_API_TOKEN}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            videos: [{ url }],
+            preferredFormat: format === 'mp3' ? 'mp3' : 'mp4',
+            ...(format === 'mp4' ? { preferredQuality: '720p' } : {}),
+          }),
+          signal: controller.signal,
+        }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    const items = await apifyRes.json();
+    if (!apifyRes.ok || !Array.isArray(items) || !items[0] || !items[0].downloadedFileUrl) {
+      throw new Error(
+        `Apify respondió sin archivo utilizable (HTTP ${apifyRes.status}): ${JSON.stringify(items).slice(0, 500)}`
+      );
+    }
+
+    const { downloadedFileUrl, fileKey } = items[0];
+    const resultFile = fileKey || `${Date.now()}.${format}`;
+    const filePath = path.join(tmpDir, resultFile);
+
+    await downloadFileWithProgress(downloadedFileUrl, filePath, jobId);
+
+    console.log(`[download] enviando archivo ${resultFile} (vía Apify)`);
+    if (jobId) sendProgress(jobId, 'done', {});
+    res.download(filePath, resultFile, (err) => {
+      if (err) console.log(`[download] error al enviar el archivo (Apify): ${err.message}`);
+      else console.log('[download] envío completado (Apify)');
+      cleanup(tmpDir);
+      resolveJob();
+    });
+  } catch (err) {
+    console.log(`[download] error vía Apify: ${err.message}`);
+    cleanup(tmpDir);
+    const error = 'Falló la descarga.';
+    const detail = err.message;
+    if (jobId) sendProgress(jobId, 'error', { error, detail });
+    if (!res.headersSent) {
+      res.status(500).json({ error, detail });
+    }
+    resolveJob();
+  }
+}
+
+// Descarga el archivo ya procesado desde el storage de Apify (un dominio
+// normal, sin relación con YouTube, así que nunca dispara el bloqueo) y va
+// reportando progreso real por bytes recibidos, en el mismo formato que usan
+// los eventos SSE del flujo de yt-dlp.
+function downloadFileWithProgress(fileUrl, destPath, jobId) {
+  return new Promise((resolve, reject) => {
+    https.get(fileUrl, (response) => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`No se pudo descargar el archivo de Apify (HTTP ${response.statusCode})`));
+        return;
+      }
+
+      const totalBytes = parseInt(response.headers['content-length'] || '0', 10);
+      let downloadedBytes = 0;
+      const startTime = Date.now();
+      const fileStream = fs.createWriteStream(destPath);
+
+      response.on('data', (chunk) => {
+        downloadedBytes += chunk.length;
+        if (jobId && totalBytes) {
+          const elapsedSec = (Date.now() - startTime) / 1000;
+          const speedMBs = elapsedSec > 0 ? (downloadedBytes / 1024 / 1024 / elapsedSec).toFixed(2) : '0';
+          sendProgress(jobId, 'progress', {
+            percent: ((downloadedBytes / totalBytes) * 100).toFixed(1),
+            total: `${(totalBytes / 1024 / 1024).toFixed(1)}MiB`,
+            speed: `${speedMBs}MiB/s`,
+            eta: 'N/A',
+          });
+        }
+      });
+
+      response.pipe(fileStream);
+      fileStream.on('finish', () => fileStream.close(() => resolve()));
+      fileStream.on('error', reject);
+    }).on('error', reject);
   });
 }
 
