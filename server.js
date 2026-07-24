@@ -215,7 +215,10 @@ function buildInlineTranslations(code, dict) {
 function renderIndexHtml(code) {
   const dict = TRANSLATIONS[code] || TRANSLATIONS.en;
   const dir = RTL_CODES.has(code) ? 'rtl' : 'ltr';
-  const title = `${dict.hero_title} — Instagram Download`;
+  // "Instagram Download" va primero: es la keyword/marca principal que
+  // queremos que el <title> refuerce, y en el <title> lo que aparece antes
+  // pesa más para el posicionamiento que lo que va al final.
+  const title = `Instagram Download — ${dict.hero_title}`;
   const description = dict.hero_subtitle;
   const url = `${SITE_ORIGIN}/${code}`;
 
