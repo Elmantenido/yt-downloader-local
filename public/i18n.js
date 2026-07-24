@@ -64,9 +64,6 @@ const I18N = (() => {
       faq7_a: 'Downloading content you have the right to use — your own posts, or content shared with the creator\'s permission — is fine. Redistributing someone else\'s content without permission may violate their copyright, so always respect the original creator\'s rights.',
       faq8_q: 'Can I download private Instagram videos?',
       faq8_a: 'No. Only public posts can be downloaded — private accounts require access we don\'t have or request.',
-
-      footer_text: 'This tool is for personal and educational use. We don\'t host any content — all rights belong to the original creators. Instagram and the Instagram logo are trademarks of Instagram/Meta. This site is not affiliated with or endorsed by Instagram.',
-
       label_video: 'Video',
       label_audio: 'Audio (MP3)',
 
@@ -144,9 +141,6 @@ const I18N = (() => {
       faq7_a: 'Descargar contenido que tienes derecho a usar — tus propias publicaciones, o contenido compartido con permiso del creador — está bien. Redistribuir el contenido de otra persona sin permiso puede violar sus derechos de autor, así que siempre respeta los derechos del creador original.',
       faq8_q: '¿Puedo descargar videos privados de Instagram?',
       faq8_a: 'No. Solo se pueden descargar publicaciones públicas — las cuentas privadas requieren un acceso que no tenemos ni solicitamos.',
-
-      footer_text: 'Esta herramienta es para uso personal y educativo. No alojamos ningún contenido — todos los derechos pertenecen a los creadores originales. Instagram y su logo son marcas registradas de Instagram/Meta. Este sitio no está afiliado ni respaldado por Instagram.',
-
       label_video: 'Video',
       label_audio: 'Audio (MP3)',
 
@@ -224,9 +218,6 @@ const I18N = (() => {
       faq7_a: 'تحميل محتوى لديك الحق في استخدامه — منشوراتك الخاصة، أو محتوى تمت مشاركته بإذن من المُنشئ — أمر جيد. قد تنتهك إعادة توزيع محتوى شخص آخر بدون إذن حقوق نشره، لذا احترم دائمًا حقوق المُنشئ الأصلي.',
       faq8_q: 'هل يمكنني تحميل فيديوهات إنستغرام الخاصة؟',
       faq8_a: 'لا. يمكن تحميل المنشورات العامة فقط — الحسابات الخاصة تتطلب وصولاً لا نملكه ولا نطلبه.',
-
-      footer_text: 'هذه الأداة للاستخدام الشخصي والتعليمي فقط. نحن لا نستضيف أي محتوى — جميع الحقوق تعود لمنشئيها الأصليين. إنستغرام وشعاره علامتان تجاريتان مسجلتان لشركة Instagram/Meta. هذا الموقع غير تابع لإنستغرام ولا معتمد منه.',
-
       label_video: 'فيديو',
       label_audio: 'صوت (MP3)',
 
@@ -304,9 +295,6 @@ const I18N = (() => {
       faq7_a: 'আপনার ব্যবহারের অধিকার আছে এমন কনটেন্ট ডাউনলোড করা — আপনার নিজের পোস্ট, বা নির্মাতার অনুমতিতে শেয়ার করা কনটেন্ট — ঠিক আছে। অনুমতি ছাড়া অন্য কারো কনটেন্ট পুনর্বিতরণ তাদের কপিরাইট লঙ্ঘন করতে পারে, তাই সর্বদা মূল নির্মাতার অধিকারকে সম্মান করুন।',
       faq8_q: 'আমি কি প্রাইভেট ইনস্টাগ্রাম ভিডিও ডাউনলোড করতে পারি?',
       faq8_a: 'না। শুধুমাত্র পাবলিক পোস্ট ডাউনলোড করা যায় — প্রাইভেট অ্যাকাউন্টের জন্য এমন অ্যাক্সেস দরকার যা আমাদের নেই বা আমরা অনুরোধ করি না।',
-
-      footer_text: 'এই টুলটি শুধুমাত্র ব্যক্তিগত এবং শিক্ষামূলক ব্যবহারের জন্য। আমরা কোনো কনটেন্ট হোস্ট করি না — সমস্ত অধিকার মূল নির্মাতাদের কাছে। ইনস্টাগ্রাম এবং ইনস্টাগ্রাম লোগো Instagram/Meta-এর ট্রেডমার্ক। এই সাইটটি ইনস্টাগ্রামের সাথে সংযুক্ত নয় বা এর দ্বারা অনুমোদিত নয়।',
-
       label_video: 'ভিডিও',
       label_audio: 'অডিও (MP3)',
 
@@ -384,9 +372,6 @@ const I18N = (() => {
       faq7_a: 'Stahování obsahu, k jehož použití máte právo — vlastních příspěvků nebo obsahu sdíleného se svolením tvůrce — je v pořádku. Šíření cizího obsahu bez svolení může porušovat autorská práva, proto vždy respektujte práva původního tvůrce.',
       faq8_q: 'Mohu stáhnout soukromá videa z Instagramu?',
       faq8_a: 'Ne. Stahovat lze pouze veřejné příspěvky — soukromé účty vyžadují přístup, který nemáme ani o něj nežádáme.',
-
-      footer_text: 'Tento nástroj slouží pouze pro osobní a vzdělávací účely. Nehostujeme žádný obsah — veškerá práva náleží původním tvůrcům. Instagram a logo Instagramu jsou ochranné známky společnosti Instagram/Meta. Tento web není s Instagramem spojen ani jím schválen.',
-
       label_video: 'Video',
       label_audio: 'Zvuk (MP3)',
 
@@ -464,9 +449,6 @@ const I18N = (() => {
       faq7_a: 'Das Herunterladen von Inhalten, die du nutzen darfst — eigene Beiträge oder mit Erlaubnis des Erstellers geteilte Inhalte — ist in Ordnung. Die Weiterverbreitung fremder Inhalte ohne Erlaubnis kann deren Urheberrecht verletzen, respektiere daher immer die Rechte des ursprünglichen Erstellers.',
       faq8_q: 'Kann ich private Instagram-Videos herunterladen?',
       faq8_a: 'Nein. Es können nur öffentliche Beiträge heruntergeladen werden — private Konten erfordern einen Zugriff, den wir weder haben noch anfordern.',
-
-      footer_text: 'Dieses Tool dient nur privaten und Bildungszwecken. Wir hosten keine Inhalte — alle Rechte liegen bei den ursprünglichen Erstellern. Instagram und das Instagram-Logo sind Marken von Instagram/Meta. Diese Seite ist nicht mit Instagram verbunden oder von Instagram unterstützt.',
-
       label_video: 'Video',
       label_audio: 'Audio (MP3)',
 
@@ -544,9 +526,6 @@ const I18N = (() => {
       faq7_a: 'دانلود محتوایی که حق استفاده از آن را دارید — پست‌های خودتان، یا محتوای به اشتراک‌گذاشته‌شده با اجازه سازنده — اشکالی ندارد. توزیع مجدد محتوای دیگران بدون اجازه ممکن است حق چاپ آن‌ها را نقض کند، بنابراین همیشه به حقوق سازنده اصلی احترام بگذارید.',
       faq8_q: 'آیا می‌توانم ویدیوهای خصوصی اینستاگرام را دانلود کنم؟',
       faq8_a: 'خیر. فقط پست‌های عمومی قابل دانلود هستند — حساب‌های خصوصی به دسترسی‌ای نیاز دارند که ما نداریم و درخواست هم نمی‌کنیم.',
-
-      footer_text: 'این ابزار فقط برای استفاده شخصی و آموزشی است. ما هیچ محتوایی را میزبانی نمی‌کنیم — تمام حقوق متعلق به سازندگان اصلی است. اینستاگرام و لوگوی اینستاگرام علائم تجاری Instagram/Meta هستند. این سایت به اینستاگرام وابسته نیست و توسط آن تأیید نشده است.',
-
       label_video: 'ویدیو',
       label_audio: 'صدا (MP3)',
 
@@ -624,9 +603,6 @@ const I18N = (() => {
       faq7_a: "Télécharger du contenu que vous avez le droit d'utiliser — vos propres publications, ou du contenu partagé avec la permission du créateur — est acceptable. Redistribuer le contenu de quelqu'un d'autre sans permission peut violer ses droits d'auteur, alors respectez toujours les droits du créateur original.",
       faq8_q: 'Puis-je télécharger des vidéos Instagram privées ?',
       faq8_a: "Non. Seules les publications publiques peuvent être téléchargées — les comptes privés nécessitent un accès que nous n'avons pas et ne demandons pas.",
-
-      footer_text: "Cet outil est destiné à un usage personnel et éducatif uniquement. Nous n'hébergeons aucun contenu — tous les droits appartiennent aux créateurs originaux. Instagram et le logo Instagram sont des marques déposées d'Instagram/Meta. Ce site n'est pas affilié à Instagram ni approuvé par celui-ci.",
-
       label_video: 'Vidéo',
       label_audio: 'Audio (MP3)',
 
@@ -704,9 +680,6 @@ const I18N = (() => {
       faq7_a: 'ऐसी सामग्री डाउनलोड करना जिसका उपयोग करने का आपको अधिकार है — आपकी अपनी पोस्ट, या निर्माता की अनुमति से साझा की गई सामग्री — ठीक है। बिना अनुमति किसी और की सामग्री को पुनः वितरित करना उनके कॉपीराइट का उल्लंघन कर सकता है, इसलिए हमेशा मूल निर्माता के अधिकारों का सम्मान करें।',
       faq8_q: 'क्या मैं निजी इंस्टाग्राम वीडियो डाउनलोड कर सकता हूं?',
       faq8_a: 'नहीं। केवल सार्वजनिक पोस्ट ही डाउनलोड की जा सकती हैं — निजी खातों के लिए ऐसी पहुंच चाहिए जो हमारे पास नहीं है और न ही हम इसका अनुरोध करते हैं।',
-
-      footer_text: 'यह टूल केवल व्यक्तिगत और शैक्षिक उपयोग के लिए है। हम किसी भी सामग्री की मेज़बानी नहीं करते — सभी अधिकार मूल निर्माताओं के पास हैं। इंस्टाग्राम और इंस्टाग्राम लोगो Instagram/Meta के ट्रेडमार्क हैं। यह साइट इंस्टाग्राम से संबद्ध या इसके द्वारा अनुमोदित नहीं है।',
-
       label_video: 'वीडियो',
       label_audio: 'ऑडियो (MP3)',
 
@@ -784,9 +757,6 @@ const I18N = (() => {
       faq7_a: 'Scaricare contenuti che hai il diritto di usare — i tuoi post o contenuti condivisi con il permesso del creatore — va bene. Ridistribuire i contenuti di qualcun altro senza permesso può violare il loro copyright, quindi rispetta sempre i diritti del creatore originale.',
       faq8_q: 'Posso scaricare video privati di Instagram?',
       faq8_a: 'No. Si possono scaricare solo i post pubblici — gli account privati richiedono un accesso che non abbiamo né richiediamo.',
-
-      footer_text: 'Questo strumento è solo per uso personale ed educativo. Non ospitiamo alcun contenuto — tutti i diritti appartengono ai creatori originali. Instagram e il logo di Instagram sono marchi di Instagram/Meta. Questo sito non è affiliato né approvato da Instagram.',
-
       label_video: 'Video',
       label_audio: 'Audio (MP3)',
 
@@ -864,9 +834,6 @@ const I18N = (() => {
       faq7_a: '自分の投稿や、制作者の許可を得て共有されたコンテンツなど、利用する権利があるコンテンツをダウンロードするのは問題ありません。許可なく他人のコンテンツを再配布すると著作権を侵害する可能性があるため、常に元の制作者の権利を尊重してください。',
       faq8_q: '非公開のInstagram動画はダウンロードできますか？',
       faq8_a: 'いいえ。ダウンロードできるのは公開投稿のみです — 非公開アカウントには、当方が持っていない、また要求もしないアクセス権が必要です。',
-
-      footer_text: 'このツールは個人的・教育的な利用のみを目的としています。当方はいかなるコンテンツもホストしていません — すべての権利は元の制作者に帰属します。InstagramおよびInstagramのロゴはInstagram/Metaの商標です。このサイトはInstagramと提携または承認されたものではありません。',
-
       label_video: '動画',
       label_audio: '音声（MP3）',
 
@@ -944,9 +911,6 @@ const I18N = (() => {
       faq7_a: '사용할 권리가 있는 콘텐츠 — 본인의 게시물이나 제작자의 허락을 받아 공유된 콘텐츠 — 를 다운로드하는 것은 괜찮습니다. 허락 없이 타인의 콘텐츠를 재배포하면 저작권을 침해할 수 있으니 항상 원저작자의 권리를 존중하세요.',
       faq8_q: '비공개 인스타그램 동영상을 다운로드할 수 있나요?',
       faq8_a: '아니요. 공개 게시물만 다운로드할 수 있습니다 — 비공개 계정은 저희가 갖고 있지 않고 요청하지도 않는 접근 권한이 필요합니다.',
-
-      footer_text: '이 도구는 개인적, 교육적 용도로만 사용됩니다. 저희는 어떠한 콘텐츠도 호스팅하지 않습니다 — 모든 권리는 원저작자에게 있습니다. 인스타그램과 인스타그램 로고는 Instagram/Meta의 상표입니다. 이 사이트는 인스타그램과 제휴하거나 인스타그램의 승인을 받지 않았습니다.',
-
       label_video: '동영상',
       label_audio: '오디오 (MP3)',
 
@@ -1024,9 +988,6 @@ const I18N = (() => {
       faq7_a: 'Het downloaden van content die je mag gebruiken — je eigen posts, of content gedeeld met toestemming van de maker — is prima. Het herverspreiden van andermans content zonder toestemming kan hun auteursrecht schenden, respecteer dus altijd de rechten van de oorspronkelijke maker.',
       faq8_q: "Kan ik privé Instagram-video's downloaden?",
       faq8_a: 'Nee. Alleen openbare posts kunnen worden gedownload — privéaccounts vereisen toegang die we niet hebben en niet opvragen.',
-
-      footer_text: 'Deze tool is alleen voor persoonlijk en educatief gebruik. Wij hosten geen enkele content — alle rechten behoren toe aan de oorspronkelijke makers. Instagram en het Instagram-logo zijn handelsmerken van Instagram/Meta. Deze site is niet verbonden aan of goedgekeurd door Instagram.',
-
       label_video: 'Video',
       label_audio: 'Audio (MP3)',
 
@@ -1104,9 +1065,6 @@ const I18N = (() => {
       faq7_a: 'Pobieranie treści, do których masz prawo — własnych postów lub treści udostępnionych za zgodą twórcy — jest w porządku. Rozpowszechnianie cudzych treści bez zgody może naruszać prawa autorskie, więc zawsze szanuj prawa oryginalnego twórcy.',
       faq8_q: 'Czy mogę pobierać prywatne filmy z Instagrama?',
       faq8_a: 'Nie. Można pobierać tylko publiczne posty — konta prywatne wymagają dostępu, którego nie mamy ani o który nie prosimy.',
-
-      footer_text: 'To narzędzie służy wyłącznie do celów osobistych i edukacyjnych. Nie hostujemy żadnych treści — wszystkie prawa należą do oryginalnych twórców. Instagram i logo Instagrama są znakami towarowymi Instagram/Meta. Ta strona nie jest powiązana ani zatwierdzona przez Instagram.',
-
       label_video: 'Wideo',
       label_audio: 'Audio (MP3)',
 
@@ -1184,9 +1142,6 @@ const I18N = (() => {
       faq7_a: 'Baixar conteúdo que você tem o direito de usar — suas próprias publicações, ou conteúdo compartilhado com permissão do criador — está tudo bem. Redistribuir o conteúdo de outra pessoa sem permissão pode violar seus direitos autorais, então respeite sempre os direitos do criador original.',
       faq8_q: 'Posso baixar vídeos privados do Instagram?',
       faq8_a: 'Não. Apenas publicações públicas podem ser baixadas — contas privadas exigem um acesso que não temos nem solicitamos.',
-
-      footer_text: 'Esta ferramenta é apenas para uso pessoal e educacional. Não hospedamos nenhum conteúdo — todos os direitos pertencem aos criadores originais. Instagram e o logotipo do Instagram são marcas registradas da Instagram/Meta. Este site não é afiliado nem endossado pelo Instagram.',
-
       label_video: 'Vídeo',
       label_audio: 'Áudio (MP3)',
 
@@ -1264,9 +1219,6 @@ const I18N = (() => {
       faq7_a: 'Descărcarea conținutului pe care ai dreptul să îl folosești — propriile postări sau conținut distribuit cu permisiunea creatorului — este în regulă. Redistribuirea conținutului altcuiva fără permisiune poate încălca drepturile de autor, așa că respectă întotdeauna drepturile creatorului original.',
       faq8_q: 'Pot descărca videoclipuri private de pe Instagram?',
       faq8_a: 'Nu. Pot fi descărcate doar postările publice — conturile private necesită un acces pe care nu îl avem și nu îl solicităm.',
-
-      footer_text: 'Acest instrument este destinat exclusiv uzului personal și educațional. Nu găzduim niciun conținut — toate drepturile aparțin creatorilor originali. Instagram și logo-ul Instagram sunt mărci comerciale ale Instagram/Meta. Acest site nu este afiliat și nu este aprobat de Instagram.',
-
       label_video: 'Video',
       label_audio: 'Audio (MP3)',
 
@@ -1344,9 +1296,6 @@ const I18N = (() => {
       faq7_a: 'Скачивание контента, на использование которого у вас есть право — собственных постов или контента, которым поделился автор с разрешения, — это нормально. Распространение чужого контента без разрешения может нарушить авторские права, поэтому всегда уважайте права оригинального автора.',
       faq8_q: 'Могу ли я скачивать закрытые видео Instagram?',
       faq8_a: 'Нет. Скачивать можно только публичные посты — закрытые аккаунты требуют доступа, которого у нас нет и который мы не запрашиваем.',
-
-      footer_text: 'Этот инструмент предназначен только для личного и образовательного использования. Мы не храним никакой контент — все права принадлежат оригинальным авторам. Instagram и логотип Instagram являются товарными знаками Instagram/Meta. Этот сайт не связан с Instagram и не одобрен им.',
-
       label_video: 'Видео',
       label_audio: 'Аудио (MP3)',
 
@@ -1424,9 +1373,6 @@ const I18N = (() => {
       faq7_a: 'Sťahovanie obsahu, na ktorého použitie máte právo — vlastných príspevkov alebo obsahu zdieľaného so súhlasom tvorcu — je v poriadku. Šírenie cudzieho obsahu bez súhlasu môže porušovať autorské práva, preto vždy rešpektujte práva pôvodného tvorcu.',
       faq8_q: 'Môžem sťahovať súkromné videá z Instagramu?',
       faq8_a: 'Nie. Sťahovať možno iba verejné príspevky — súkromné účty vyžadujú prístup, ktorý nemáme ani oň nežiadame.',
-
-      footer_text: 'Tento nástroj slúži len na osobné a vzdelávacie účely. Nehostíme žiadny obsah — všetky práva patria pôvodným tvorcom. Instagram a logo Instagramu sú ochranné známky spoločnosti Instagram/Meta. Táto stránka nie je spojená s Instagramom ani ním schválená.',
-
       label_video: 'Video',
       label_audio: 'Zvuk (MP3)',
 
@@ -1504,9 +1450,6 @@ const I18N = (() => {
       faq7_a: 'Att ladda ner innehåll som du har rätt att använda — dina egna inlägg, eller innehåll som delats med skaparens tillstånd — är okej. Att sprida någon annans innehåll utan tillstånd kan bryta mot deras upphovsrätt, så respektera alltid den ursprungliga skaparens rättigheter.',
       faq8_q: 'Kan jag ladda ner privata Instagram-videor?',
       faq8_a: 'Nej. Endast offentliga inlägg kan laddas ner — privata konton kräver åtkomst som vi varken har eller begär.',
-
-      footer_text: 'Det här verktyget är endast för personligt och pedagogiskt bruk. Vi hostar inget innehåll — alla rättigheter tillhör de ursprungliga skaparna. Instagram och Instagram-logotypen är varumärken som tillhör Instagram/Meta. Den här sidan är inte kopplad till eller godkänd av Instagram.',
-
       label_video: 'Video',
       label_audio: 'Ljud (MP3)',
 
@@ -1584,9 +1527,6 @@ const I18N = (() => {
       faq7_a: 'Kullanma hakkınız olan içeriği indirmek — kendi gönderileriniz veya içerik üreticisinin izniyle paylaşılan içerik — sorun değildir. Başkasının içeriğini izinsiz yeniden dağıtmak telif haklarını ihlal edebilir, bu yüzden her zaman orijinal içerik üreticisinin haklarına saygı gösterin.',
       faq8_q: 'Özel Instagram videolarını indirebilir miyim?',
       faq8_a: 'Hayır. Yalnızca herkese açık gönderiler indirilebilir — özel hesaplar, sahip olmadığımız ve talep etmediğimiz bir erişim gerektirir.',
-
-      footer_text: "Bu araç yalnızca kişisel ve eğitim amaçlı kullanım içindir. Herhangi bir içeriği barındırmıyoruz — tüm haklar orijinal içerik üreticilerine aittir. Instagram ve Instagram logosu Instagram/Meta'nın ticari markalarıdır. Bu site Instagram ile bağlantılı değildir veya Instagram tarafından onaylanmamıştır.",
-
       label_video: 'Video',
       label_audio: 'Ses (MP3)',
 
@@ -1664,9 +1604,6 @@ const I18N = (() => {
       faq7_a: 'Việc tải xuống nội dung mà bạn có quyền sử dụng — bài đăng của chính bạn hoặc nội dung được chia sẻ với sự cho phép của người tạo — là ổn. Việc phân phối lại nội dung của người khác mà không được phép có thể vi phạm bản quyền của họ, vì vậy hãy luôn tôn trọng quyền của người tạo nội dung gốc.',
       faq8_q: 'Tôi có thể tải video riêng tư của Instagram không?',
       faq8_a: 'Không. Chỉ có thể tải các bài đăng công khai — tài khoản riêng tư yêu cầu quyền truy cập mà chúng tôi không có cũng như không yêu cầu.',
-
-      footer_text: 'Công cụ này chỉ dành cho mục đích sử dụng cá nhân và giáo dục. Chúng tôi không lưu trữ bất kỳ nội dung nào — mọi quyền thuộc về người tạo nội dung gốc. Instagram và logo Instagram là thương hiệu của Instagram/Meta. Trang web này không liên kết hoặc được Instagram xác nhận.',
-
       label_video: 'Video',
       label_audio: 'Âm thanh (MP3)',
 
@@ -1744,9 +1681,6 @@ const I18N = (() => {
       faq7_a: '下载你有权使用的内容 — 你自己的帖子，或经创作者许可分享的内容 — 是没问题的。未经许可重新分发他人的内容可能侵犯其版权，因此请始终尊重原创作者的权利。',
       faq8_q: '我可以下载私密的 Instagram 视频吗？',
       faq8_a: '不可以。只能下载公开帖子 — 私密账户需要我们没有也不会请求的访问权限。',
-
-      footer_text: '本工具仅供个人和教育用途使用。我们不托管任何内容 — 所有权利归原创作者所有。Instagram 和 Instagram 标志是 Instagram/Meta 的商标。本网站与 Instagram 无关联，也未获得其认可。',
-
       label_video: '视频',
       label_audio: '音频（MP3）',
 
@@ -1824,9 +1758,6 @@ const I18N = (() => {
       faq7_a: 'Mengunduh konten yang Anda memiliki hak untuk menggunakannya — postingan Anda sendiri, atau konten yang dibagikan dengan izin pembuatnya — tidak masalah. Menyebarluaskan konten orang lain tanpa izin dapat melanggar hak cipta mereka, jadi selalu hormati hak pembuat konten asli.',
       faq8_q: 'Bisakah saya mengunduh video Instagram pribadi?',
       faq8_a: 'Tidak. Hanya postingan publik yang dapat diunduh — akun pribadi memerlukan akses yang tidak kami miliki atau minta.',
-
-      footer_text: 'Alat ini hanya untuk penggunaan pribadi dan edukasi. Kami tidak menghosting konten apa pun — semua hak adalah milik pembuat konten asli. Instagram dan logo Instagram adalah merek dagang Instagram/Meta. Situs ini tidak berafiliasi dengan atau didukung oleh Instagram.',
-
       label_video: 'Video',
       label_audio: 'Audio (MP3)',
 
@@ -1904,9 +1835,6 @@ const I18N = (() => {
       faq7_a: 'Memuat turun kandungan yang anda mempunyai hak untuk menggunakannya — siaran anda sendiri, atau kandungan yang dikongsi dengan kebenaran pencipta — adalah baik. Menyebarkan semula kandungan orang lain tanpa kebenaran boleh melanggar hak cipta mereka, jadi sentiasa hormati hak pencipta asal.',
       faq8_q: 'Bolehkah saya memuat turun video Instagram peribadi?',
       faq8_a: 'Tidak. Hanya siaran awam boleh dimuat turun — akaun peribadi memerlukan akses yang kami tidak miliki atau minta.',
-
-      footer_text: 'Alat ini adalah untuk kegunaan peribadi dan pendidikan sahaja. Kami tidak mengehos sebarang kandungan — semua hak adalah kepunyaan pencipta asal. Instagram dan logo Instagram adalah tanda dagangan Instagram/Meta. Laman web ini tidak bergabung dengan atau diluluskan oleh Instagram.',
-
       label_video: 'Video',
       label_audio: 'Audio (MP3)',
 
@@ -1984,9 +1912,6 @@ const I18N = (() => {
       faq7_a: 'การดาวน์โหลดเนื้อหาที่คุณมีสิทธิ์ใช้ — โพสต์ของคุณเอง หรือเนื้อหาที่แชร์โดยได้รับอนุญาตจากผู้สร้างสรรค์ — ถือว่าไม่มีปัญหา การเผยแพร่เนื้อหาของผู้อื่นซ้ำโดยไม่ได้รับอนุญาตอาจละเมิดลิขสิทธิ์ของพวกเขา ดังนั้นควรเคารพสิทธิ์ของผู้สร้างสรรค์ต้นฉบับเสมอ',
       faq8_q: 'ฉันสามารถดาวน์โหลดวิดีโอส่วนตัวของ Instagram ได้หรือไม่?',
       faq8_a: 'ไม่ได้ สามารถดาวน์โหลดได้เฉพาะโพสต์สาธารณะเท่านั้น — บัญชีส่วนตัวต้องการการเข้าถึงที่เราไม่มีและไม่ร้องขอ',
-
-      footer_text: 'เครื่องมือนี้มีไว้สำหรับการใช้งานส่วนตัวและการศึกษาเท่านั้น เราไม่ได้โฮสต์เนื้อหาใด ๆ — สิทธิ์ทั้งหมดเป็นของผู้สร้างสรรค์ต้นฉบับ Instagram และโลโก้ Instagram เป็นเครื่องหมายการค้าของ Instagram/Meta เว็บไซต์นี้ไม่ได้เกี่ยวข้องหรือได้รับการรับรองจาก Instagram',
-
       label_video: 'วิดีโอ',
       label_audio: 'เสียง (MP3)',
 
