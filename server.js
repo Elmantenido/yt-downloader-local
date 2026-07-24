@@ -178,8 +178,17 @@ app.get('/api/formats', formatsRateLimit, (req, res) => {
         }
       }
 
-      const qualities = Array.from(byResolution.values())
-        .sort((a, b) => b.height - a.height || (b.fps || 0) - (a.fps || 0))
+      const sortedFormats = Array.from(byResolution.values())
+        .sort((a, b) => b.height - a.height || (b.fps || 0) - (a.fps || 0));
+
+      // URL directa del CDN de Instagram para la mejor calidad, para que el
+      // navegador pueda reproducir una vista previa antes de descargar. A
+      // diferencia de YouTube, Instagram no ató estas URLs a la IP que las
+      // resolvió (no vimos ese bloqueo en todo el proyecto), así que sirven
+      // tal cual para cualquier visitante.
+      const previewUrl = sortedFormats[0]?.url || null;
+
+      const qualities = sortedFormats
         .map((f) => {
           // Algunos formatos no traen filesize ni filesize_approx. En ese
           // caso estimamos el tamaño a partir del bitrate y la duración.
@@ -201,7 +210,7 @@ app.get('/api/formats', formatsRateLimit, (req, res) => {
           };
         });
 
-      res.json({ title: info.title, thumbnail: info.thumbnail, qualities });
+      res.json({ title: info.title, thumbnail: info.thumbnail, previewUrl, qualities });
     } catch (err) {
       console.log(`[formats] error al parsear info: ${err.message}`);
       res.status(500).json({ error: 'Could not read the video information.' });

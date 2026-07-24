@@ -67,6 +67,9 @@ const I18N = (() => {
 
       footer_text: 'This tool is for personal and educational use. We don\'t host any content — all rights belong to the original creators. Instagram and the Instagram logo are trademarks of Instagram/Meta. This site is not affiliated with or endorsed by Instagram.',
 
+      label_video: 'Video',
+      label_audio: 'Audio (MP3)',
+
       status_paste_first: 'Paste an Instagram link first.',
       status_invalid_link: 'That doesn\'t look like a valid Instagram link.',
       status_connecting: 'Connecting...',

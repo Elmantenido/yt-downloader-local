@@ -5,12 +5,15 @@ const btnFetchText = document.getElementById('btn-fetch-text');
 const fetchSpinner = document.getElementById('fetch-spinner');
 const resultBox = document.getElementById('result-box');
 const resultThumb = document.getElementById('result-thumb');
+const resultVideo = document.getElementById('result-video');
+const resultThumbPlay = document.getElementById('result-thumb-play');
 const btnDownloadVideo = document.getElementById('btn-download-video');
 const btnDownloadAudio = document.getElementById('btn-download-audio');
 const errorBox = document.getElementById('error-box');
 const errorText = document.getElementById('error-text');
 const btnPaste = document.getElementById('btn-paste');
 const btnClear = document.getElementById('btn-clear');
+const downloadsList = document.getElementById('downloads-list');
 
 const INSTAGRAM_URL_RE = /^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|stories)\//i;
 
@@ -29,6 +32,11 @@ function makeJobId() {
 function hideResult() {
   resultBox.hidden = true;
   bestVideoFormatId = null;
+  resultVideo.hidden = true;
+  resultVideo.removeAttribute('src');
+  resultVideo.load();
+  resultThumb.hidden = false;
+  resultThumbPlay.hidden = false;
 }
 
 function hideError() {
@@ -39,6 +47,58 @@ function showError(message) {
   hideResult();
   errorText.textContent = message;
   errorBox.hidden = false;
+}
+
+// Cada descarga activa tiene su propia tarjeta con su propia barra de
+// progreso, así varias descargas simultáneas (video + audio del mismo post,
+// o distintos links a la vez) no se pisan entre sí en pantalla.
+function createDownloadItem(label) {
+  const root = document.createElement('div');
+  root.className = 'download-item';
+  root.innerHTML = `
+    <div class="download-item-icon">⬇</div>
+    <div class="download-item-body">
+      <div class="download-item-top">
+        <span class="download-item-label"></span>
+        <span class="download-item-status"></span>
+      </div>
+      <div class="download-item-bar"><div class="download-item-bar-fill"></div></div>
+    </div>
+    <button type="button" class="download-item-close" aria-label="Dismiss">✕</button>
+  `;
+  root.querySelector('.download-item-label').textContent = label;
+  const statusEl = root.querySelector('.download-item-status');
+  const barFillEl = root.querySelector('.download-item-bar-fill');
+  const closeBtn = root.querySelector('.download-item-close');
+
+  downloadsList.appendChild(root);
+
+  let removed = false;
+  const remove = () => {
+    if (removed) return;
+    removed = true;
+    root.remove();
+  };
+  closeBtn.addEventListener('click', () => {
+    if (item.onClose) item.onClose();
+    remove();
+  });
+
+  const item = {
+    setText(text) {
+      statusEl.textContent = text;
+    },
+    setPercent(percent) {
+      barFillEl.style.width = `${Math.min(100, Math.max(0, parseFloat(percent) || 0))}%`;
+    },
+    setState(state) {
+      root.classList.toggle('is-done', state === 'done');
+      root.classList.toggle('is-error', state === 'error');
+    },
+    remove,
+    onClose: null,
+  };
+  return item;
 }
 
 function setFetching(isFetching) {
@@ -100,6 +160,22 @@ async function fetchInfo() {
   resultThumb.alt = data.title || '';
   hideError();
   resultBox.hidden = false;
+
+  // Vista previa reproducible: si el servidor nos dio la URL directa del
+  // video, la usamos; si falla en cargar (o no vino), nos quedamos con la
+  // miniatura estática de siempre.
+  if (data.previewUrl) {
+    resultVideo.src = data.previewUrl;
+    resultVideo.hidden = false;
+    resultThumb.hidden = true;
+    resultThumbPlay.hidden = true;
+    resultVideo.onerror = () => {
+      DebugLog.log('Video preview failed to load, falling back to thumbnail');
+      resultVideo.hidden = true;
+      resultThumb.hidden = false;
+      resultThumbPlay.hidden = false;
+    };
+  }
 }
 
 urlInput.addEventListener('input', () => {
@@ -158,21 +234,31 @@ function download(format, formatId) {
     return;
   }
 
+  status.textContent = '';
+
   const jobId = makeJobId();
   let target = `/api/download?url=${encodeURIComponent(url)}&format=${format}&jobId=${jobId}`;
   if (formatId) target += `&formatId=${encodeURIComponent(formatId)}`;
 
   DebugLog.log('Starting download', { url, format, formatId, jobId });
-  status.textContent = I18N.t('status_connecting');
+
+  const label = I18N.t(format === 'mp3' ? 'label_audio' : 'label_video');
+  const item = createDownloadItem(label);
+  item.setText(I18N.t('status_connecting'));
 
   // El servidor emite el progreso real de yt-dlp (porcentaje, velocidad, ETA)
   // por Server-Sent Events, así el estado no es solo un spinner ciego.
   const source = new EventSource(`/api/progress/${jobId}`);
+  item.onClose = () => source.close();
 
-  const stop = (finalText) => {
+  const stop = (finalText, state) => {
     DebugLog.log('Closing progress connection', finalText);
     source.close();
-    status.textContent = finalText;
+    item.setText(finalText);
+    if (state) item.setState(state);
+    if (state === 'done') {
+      setTimeout(() => item.remove(), 4000);
+    }
   };
 
   source.onopen = () => DebugLog.log('EventSource opened');
@@ -185,31 +271,33 @@ function download(format, formatId) {
 
   source.addEventListener('queued', (e) => {
     const { position, active } = JSON.parse(e.data);
-    status.textContent = I18N.t('status_queued', position, active);
+    item.setText(I18N.t('status_queued', position, active));
     DebugLog.log('queued', e.data);
   });
 
   source.addEventListener('started', () => {
-    status.textContent = I18N.t('status_started');
+    item.setText(I18N.t('status_started'));
     DebugLog.log('started received');
   });
 
   source.addEventListener('progress', (e) => {
     const { percent, total, speed, eta } = JSON.parse(e.data);
-    status.textContent = I18N.t('status_downloading', percent, total, speed, eta);
+    item.setPercent(percent);
+    item.setText(I18N.t('status_downloading', percent, total, speed, eta));
     DebugLog.log('progress', e.data);
   });
 
   source.addEventListener('done', () => {
     DebugLog.log('done received');
-    stop(I18N.t('status_done'));
+    item.setPercent(100);
+    stop(I18N.t('status_done'), 'done');
   });
 
   source.addEventListener('error', (e) => {
     DebugLog.log('server error event', e.data || '(no data, likely a normal close)');
     if (e.data) {
       const data = JSON.parse(e.data);
-      stop(data.error || I18N.t('status_generic_error'));
+      stop(data.error || I18N.t('status_generic_error'), 'error');
     }
   });
 
@@ -227,7 +315,7 @@ function download(format, formatId) {
   setTimeout(() => {
     if (source.readyState !== EventSource.CLOSED) {
       DebugLog.log('Safety timeout reached (6 min)');
-      stop(I18N.t('status_timeout'));
+      stop(I18N.t('status_timeout'), 'error');
     }
   }, 6 * 60 * 1000);
 }
