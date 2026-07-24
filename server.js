@@ -97,6 +97,12 @@ const FFMPEG_LOCATION_ARGS = ffmpegPath ? ['--ffmpeg-location', ffmpegPath] : []
 // jobId -> SSE response, para avisarle al navegador el progreso real de yt-dlp.
 const progressClients = new Map();
 
+// La raíz redirige a /en en vez de servir el mismo HTML en dos URLs: sin
+// esto, "/" y "/en" serían contenido duplicado para buscadores como Google.
+app.get('/', (req, res) => {
+  res.redirect(301, '/en');
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // El idioma se decide por la ruta, no solo por un botón que cambia texto en

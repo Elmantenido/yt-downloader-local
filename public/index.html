@@ -8,6 +8,24 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="hand-cursor" viewBox="-14 -8 68 73">
+        <rect x="10" y="-8" width="22" height="42" rx="11" fill="#000"/>
+        <rect x="-4" y="18" width="54" height="42" rx="18" fill="#000"/>
+        <rect x="-14" y="26" width="28" height="22" rx="11" fill="#000"/>
+        <rect x="18" y="0" width="14" height="34" rx="7" fill="#fff"/>
+        <rect x="4" y="26" width="46" height="34" rx="14" fill="#fff"/>
+        <rect x="-6" y="34" width="20" height="14" rx="7" fill="#fff"/>
+      </symbol>
+      <linearGradient id="step-illus-grad" x1="0" y1="0" x2="300" y2="195" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#2563eb"/>
+        <stop offset="0.5" stop-color="#8b2fff"/>
+        <stop offset="1" stop-color="#f5054f"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
   <header class="site-header">
     <div class="wrap site-header-inner">
       <a href="#" class="brand">
@@ -122,16 +140,41 @@
         <h2 data-i18n="steps_title">How it works</h2>
         <div class="steps">
           <div class="step">
+            <svg class="step-illus" viewBox="0 0 300 195" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Select and copy the Instagram link">
+              <rect width="300" height="195" rx="24" fill="url(#step-illus-grad)"/>
+              <rect x="30" y="68" width="240" height="54" rx="14" fill="#fff" opacity="0.35"/>
+              <rect x="38" y="76" width="224" height="38" rx="10" fill="#fff"/>
+              <rect x="48" y="84" width="160" height="22" rx="4" fill="#bfdbfe"/>
+              <text x="54" y="100" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14" font-weight="700" fill="#1f2937">instagram.com/p/CmcRCl...</text>
+              <use href="#hand-cursor" transform="translate(108,118) scale(0.8)"/>
+            </svg>
             <div class="step-number">1</div>
             <h3 data-i18n="step1_title">Copy the Instagram link</h3>
             <p data-i18n="step1_text">Open the Instagram app, open the post you want, tap the three dots (•••), then tap "Copy Link".</p>
           </div>
           <div class="step">
+            <svg class="step-illus" viewBox="0 0 300 195" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Paste the link and click Paste">
+              <rect width="300" height="195" rx="24" fill="url(#step-illus-grad)"/>
+              <rect x="30" y="68" width="240" height="54" rx="14" fill="#fff" opacity="0.35"/>
+              <rect x="38" y="76" width="150" height="38" rx="10" fill="#fff"/>
+              <text x="48" y="100" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="700" fill="#1f2937">instagram.com/p/C...</text>
+              <rect x="192" y="76" width="70" height="38" rx="10" fill="#e5e7eb"/>
+              <text x="207" y="100" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="700" fill="#374151">Paste</text>
+              <use href="#hand-cursor" transform="translate(205,118) scale(0.7)"/>
+            </svg>
             <div class="step-number">2</div>
             <h3 data-i18n="step2_title">Paste it above</h3>
             <p data-i18n="step2_text">Paste the link into the box at the top of this page. We'll fetch the media automatically.</p>
           </div>
           <div class="step">
+            <svg class="step-illus" viewBox="0 0 300 195" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Click Download">
+              <rect width="300" height="195" rx="24" fill="url(#step-illus-grad)"/>
+              <rect x="40" y="68" width="220" height="54" rx="14" fill="#fff" opacity="0.35"/>
+              <rect x="50" y="104" width="200" height="10" rx="5" fill="#1d4ed8"/>
+              <rect x="50" y="76" width="200" height="34" rx="10" fill="#2563eb"/>
+              <text x="150" y="99" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="16" font-weight="700" fill="#fff">Download</text>
+              <use href="#hand-cursor" transform="translate(133,118) scale(0.75)"/>
+            </svg>
             <div class="step-number">3</div>
             <h3 data-i18n="step3_title">Download</h3>
             <p data-i18n="step3_text">Choose video or audio and click download. The file saves straight to your device — no app, no account.</p>

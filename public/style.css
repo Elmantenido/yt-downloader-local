@@ -672,9 +672,17 @@ button:active:not(:disabled) {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 18px;
-  padding: 28px 24px;
+  padding: 20px 24px 28px;
   text-align: center;
   box-shadow: 0 8px 24px rgba(37, 38, 47, 0.05);
+}
+
+.step-illus {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  margin-bottom: 18px;
 }
 
 .step-number {

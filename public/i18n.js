@@ -2088,9 +2088,41 @@ const I18N = (() => {
     });
   }
 
+  const SITE_ORIGIN = 'https://instadownr.com';
+
+  // rel=canonical apunta a esta misma página (no a /en), y los rel=alternate
+  // hreflang le dicen a Google que las 25 rutas de idioma son versiones del
+  // mismo contenido, no páginas duplicadas — así indexa cada una por separado.
+  function injectSeoTags() {
+    const head = document.head;
+
+    const canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    canonical.href = `${SITE_ORIGIN}/${lang}`;
+    head.appendChild(canonical);
+
+    for (const l of LANGUAGES) {
+      const alt = document.createElement('link');
+      alt.rel = 'alternate';
+      alt.hreflang = l.code;
+      alt.href = `${SITE_ORIGIN}/${l.code}`;
+      head.appendChild(alt);
+    }
+
+    const xDefault = document.createElement('link');
+    xDefault.rel = 'alternate';
+    xDefault.hreflang = 'x-default';
+    xDefault.href = `${SITE_ORIGIN}/en`;
+    head.appendChild(xDefault);
+  }
+
   function applyStaticText() {
     document.documentElement.lang = lang;
     document.documentElement.dir = RTL_LANGS.has(lang) ? 'rtl' : 'ltr';
+
+    document.title = `${t('hero_title')} — Instagram Download`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', t('hero_subtitle'));
 
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       const key = el.getAttribute('data-i18n');
@@ -2103,6 +2135,7 @@ const I18N = (() => {
     });
 
     buildLangMenu();
+    injectSeoTags();
   }
 
   document.addEventListener('DOMContentLoaded', applyStaticText);
