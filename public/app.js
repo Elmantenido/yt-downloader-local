@@ -131,7 +131,6 @@ async function fetchInfo() {
   if (formatsAbortController) formatsAbortController.abort();
   formatsAbortController = new AbortController();
 
-  DebugLog.log('Fetching video info', url);
   setFetching(true);
 
   let data;
@@ -141,21 +140,16 @@ async function fetchInfo() {
     });
     data = await res.json();
     if (!res.ok) {
-      DebugLog.log('Error fetching info', data.error);
-      if (data.detail) DebugLog.log('Server detail', data.detail);
       showError(data.error || I18N.t('status_generic_error'));
       return;
     }
   } catch (err) {
     if (err.name === 'AbortError') return;
-    DebugLog.log('Network error fetching info', err.message);
     showError(I18N.t('status_generic_error'));
     return;
   } finally {
     setFetching(false);
   }
-
-  DebugLog.log('Video info received', data);
 
   if (!data.qualities || data.qualities.length === 0) {
     showError(I18N.t('status_generic_error'));
@@ -179,7 +173,6 @@ async function fetchInfo() {
     resultThumb.hidden = true;
     resultThumbPlay.hidden = true;
     resultVideo.onerror = () => {
-      DebugLog.log('Video preview failed to load, falling back to thumbnail');
       resultVideo.hidden = true;
       resultThumb.hidden = false;
       resultThumbPlay.hidden = false;
@@ -226,7 +219,7 @@ btnPaste.addEventListener('click', async () => {
       }
     }
   } catch (err) {
-    DebugLog.log('Clipboard read failed', err.message);
+    // El portapapeles no estaba disponible; el usuario puede pegar manualmente.
   }
   urlInput.focus();
 });
@@ -257,8 +250,6 @@ function download(format, formatId) {
   let target = `/api/download?url=${encodeURIComponent(url)}&format=${format}&jobId=${jobId}`;
   if (formatId) target += `&formatId=${encodeURIComponent(formatId)}`;
 
-  DebugLog.log('Starting download', { url, format, formatId, jobId });
-
   const label = I18N.t(format === 'mp3' ? 'label_audio' : 'label_video');
   const item = createDownloadItem(label);
   item.setText(I18N.t('status_connecting'));
@@ -269,7 +260,6 @@ function download(format, formatId) {
   item.onClose = () => source.close();
 
   const stop = (finalText, state) => {
-    DebugLog.log('Closing progress connection', finalText);
     source.close();
     item.setText(finalText);
     if (state) item.setState(state);
@@ -278,40 +268,27 @@ function download(format, formatId) {
     }
   };
 
-  source.onopen = () => DebugLog.log('EventSource opened');
-
-  source.onerror = () => {
-    // EventSource dispara 'onerror' tanto en errores reales de conexión
-    // como al cerrarse la conexión normalmente tras 'done' o 'error'.
-    DebugLog.log('EventSource onerror (native)', `readyState=${source.readyState}`);
-  };
-
   source.addEventListener('queued', (e) => {
     const { position, active } = JSON.parse(e.data);
     item.setText(I18N.t('status_queued', position, active));
-    DebugLog.log('queued', e.data);
   });
 
   source.addEventListener('started', () => {
     item.setText(I18N.t('status_started'));
-    DebugLog.log('started received');
   });
 
   source.addEventListener('progress', (e) => {
     const { percent, total, speed, eta } = JSON.parse(e.data);
     item.setPercent(percent);
     item.setText(I18N.t('status_downloading', percent, total, speed, eta));
-    DebugLog.log('progress', e.data);
   });
 
   source.addEventListener('done', () => {
-    DebugLog.log('done received');
     item.setPercent(100);
     stop(I18N.t('status_done'), 'done');
   });
 
   source.addEventListener('error', (e) => {
-    DebugLog.log('server error event', e.data || '(no data, likely a normal close)');
     if (e.data) {
       const data = JSON.parse(e.data);
       stop(data.error || I18N.t('status_generic_error'), 'error');
@@ -325,13 +302,11 @@ function download(format, formatId) {
   // pestaña actual, el navegador detecta el archivo adjunto, muestra el
   // diálogo/flujo de guardado, y se queda en la misma página sin recargarla.
   window.location.href = target;
-  DebugLog.log('Navigating to download URL', target);
 
   // Red de seguridad por si el EventSource nunca recibe 'done' (p. ej. se
   // pierde el evento de red): dejamos de esperar tras un rato.
   setTimeout(() => {
     if (source.readyState !== EventSource.CLOSED) {
-      DebugLog.log('Safety timeout reached (6 min)');
       stop(I18N.t('status_timeout'), 'error');
     }
   }, 6 * 60 * 1000);
