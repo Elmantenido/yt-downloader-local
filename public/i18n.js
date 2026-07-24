@@ -26,7 +26,7 @@ const I18N = (() => {
       step3_title: 'Download',
       step3_text: 'Choose video or audio and click download. The file saves straight to your device — no app, no account.',
 
-      features_title: 'Why InstaGrab',
+      features_title: 'Why Instagram Download',
       feat1_title: 'Free & fast',
       feat1_text: 'No hidden fees, no daily limits for normal use. Downloads start almost instantly.',
       feat2_title: 'No app required',
@@ -40,7 +40,7 @@ const I18N = (() => {
       feat6_title: 'Reels, IGTV & photos',
       feat6_text: 'Works with feed videos, Reels, IGTV, photos, and stories from public accounts.',
 
-      about_title: 'Why we built InstaGrab',
+      about_title: 'Why we built Instagram Download',
       about_text_1: 'Instagram is home to some of the best short-form video on the internet — funny, inspiring, educational — but the app itself gives you no built-in way to save a post to your device.',
       about_text_2: 'We ran into that same wall ourselves, so we built a simple, safe, and anonymous way to grab a copy of any public post — no extra app, no account, no login details shared with anyone.',
 
@@ -106,7 +106,7 @@ const I18N = (() => {
       step3_title: 'Descarga',
       step3_text: 'Elige video o audio y haz clic en descargar. El archivo se guarda directo en tu dispositivo — sin apps, sin cuenta.',
 
-      features_title: 'Por qué InstaGrab',
+      features_title: 'Por qué Instagram Download',
       feat1_title: 'Gratis y rápido',
       feat1_text: 'Sin costos ocultos, sin límites diarios para uso normal. Las descargas empiezan casi al instante.',
       feat2_title: 'Sin necesidad de app',
@@ -120,7 +120,7 @@ const I18N = (() => {
       feat6_title: 'Reels, IGTV y fotos',
       feat6_text: 'Funciona con videos del feed, Reels, IGTV, fotos e historias de cuentas públicas.',
 
-      about_title: 'Por qué creamos InstaGrab',
+      about_title: 'Por qué creamos Instagram Download',
       about_text_1: 'Instagram tiene algunos de los mejores videos cortos de internet — divertidos, inspiradores, educativos — pero la app no trae una forma nativa de guardar una publicación en tu dispositivo.',
       about_text_2: 'A nosotros nos pasó lo mismo, así que construimos una forma simple, segura y anónima de guardar una copia de cualquier publicación pública — sin apps extra, sin cuenta, sin compartir tus datos de acceso con nadie.',
 
