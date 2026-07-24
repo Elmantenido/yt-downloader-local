@@ -1,16 +1,16 @@
 :root {
-  color-scheme: dark;
-  --bg: #0f1115;
-  --bg-alt: #14161d;
-  --card: #1a1d24;
-  --card-alt: #20232c;
-  --text: #f4f4f6;
-  --muted: #9aa0ab;
-  --border: #2b2f38;
-  --accent-1: #f58529;
-  --accent-2: #dd2a7b;
-  --accent-3: #8134af;
-  --gradient: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 55%, var(--accent-3) 100%);
+  color-scheme: light;
+  --bg: #f9fafb;
+  --bg-alt: #f5f5f7;
+  --card: #ffffff;
+  --text: #141414;
+  --text-soft: #1f1f23;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --blue: #2563eb;
+  --purple: #8b2fff;
+  --pink: #f5054f;
+  --gradient: linear-gradient(135deg, var(--blue) 0%, var(--purple) 52%, var(--pink) 100%);
 }
 
 * {
@@ -25,7 +25,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
 }
 
@@ -41,13 +41,14 @@ a {
 
 h1, h2, h3 {
   line-height: 1.2;
+  color: var(--text-soft);
 }
 
 /* Header */
 
 .site-header {
   border-bottom: 1px solid var(--border);
-  background: rgba(15, 17, 21, 0.9);
+  background: rgba(249, 250, 251, 0.9);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -66,17 +67,18 @@ h1, h2, h3 {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  font-weight: 700;
-  font-size: 1.05rem;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--text-soft);
 }
 
 .brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   background: var(--gradient);
   color: white;
   font-size: 0.8rem;
@@ -85,54 +87,57 @@ h1, h2, h3 {
 
 .site-nav {
   display: flex;
-  gap: 24px;
-  font-size: 0.9rem;
+  gap: 28px;
+  font-size: 0.92rem;
 }
 
 .site-nav a {
   text-decoration: none;
   color: var(--muted);
+  font-weight: 600;
   transition: color 0.15s ease;
 }
 
 .site-nav a:hover {
-  color: var(--text);
+  color: var(--text-soft);
 }
 
 /* Hero */
 
 .hero {
-  padding: 64px 0 48px;
+  padding: 72px 0 56px;
   text-align: center;
   background:
-    radial-gradient(circle at 15% 10%, rgba(245, 133, 41, 0.14), transparent 45%),
-    radial-gradient(circle at 85% 0%, rgba(221, 42, 123, 0.14), transparent 45%);
+    radial-gradient(circle at 12% 0%, rgba(37, 99, 235, 0.08), transparent 45%),
+    radial-gradient(circle at 88% 10%, rgba(245, 5, 79, 0.08), transparent 45%);
 }
 
 .hero h1 {
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  margin: 0 0 16px;
-  max-width: 760px;
+  font-size: clamp(2rem, 4.4vw, 3rem);
+  margin: 0 0 18px;
+  max-width: 780px;
   margin-left: auto;
   margin-right: auto;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
   color: var(--muted);
-  max-width: 560px;
-  margin: 0 auto 32px;
-  font-size: 1.02rem;
+  max-width: 580px;
+  margin: 0 auto 36px;
+  font-size: 1.08rem;
 }
 
 .download-box {
-  max-width: 640px;
+  max-width: 660px;
   margin: 0 auto;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
+  border-radius: 24px;
+  padding: 28px;
   text-align: left;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 60px rgba(37, 38, 47, 0.1);
 }
 
 .download-row {
@@ -141,33 +146,35 @@ h1, h2, h3 {
 
 input#url {
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 2px solid var(--border);
   background: var(--bg-alt);
   color: var(--text);
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   outline: none;
+  transition: border-color 0.15s ease;
 }
 
 input#url:focus {
-  border-color: var(--accent-2);
+  border-color: var(--purple);
+  background: var(--card);
 }
 
 .buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 14px;
+  margin-top: 16px;
   flex-wrap: wrap;
 }
 
 button {
   border: none;
-  border-radius: 12px;
-  font-size: 0.92rem;
-  font-weight: 600;
+  border-radius: 60px;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.1s ease;
+  transition: opacity 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
   font-family: inherit;
 }
 
@@ -177,7 +184,7 @@ button:disabled {
 }
 
 button:hover:not(:disabled) {
-  opacity: 0.92;
+  opacity: 0.94;
 }
 
 button:active:not(:disabled) {
@@ -187,32 +194,33 @@ button:active:not(:disabled) {
 #btn-mp4,
 #btn-mp3 {
   flex: 1;
-  min-width: 180px;
-  padding: 13px 16px;
+  min-width: 200px;
+  padding: 18px 24px;
   color: white;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
+  font-size: 1.05rem;
 }
 
 #btn-mp4 {
   background: var(--gradient);
+  box-shadow: 0 12px 28px rgba(139, 47, 255, 0.28);
 }
 
 #btn-mp3 {
-  background: var(--card-alt);
-  border: 1px solid var(--border);
+  background: var(--text-soft);
 }
 
 .btn-icon {
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 .status {
-  margin-top: 16px;
+  margin-top: 18px;
   min-height: 1.2em;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: var(--muted);
 }
 
@@ -221,8 +229,8 @@ button:active:not(:disabled) {
 .quality-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 10px;
-  margin-top: 18px;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .quality-card {
@@ -230,16 +238,17 @@ button:active:not(:disabled) {
   flex-direction: column;
   background: var(--bg-alt);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
   padding: 0;
   text-align: left;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.1s ease;
 }
 
 .quality-card:hover:not(:disabled) {
-  border-color: var(--accent-2);
+  border-color: var(--purple);
+  transform: translateY(-2px);
 }
 
 .quality-thumb {
@@ -256,30 +265,31 @@ button:active:not(:disabled) {
 
 .quality-badge {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.75);
+  right: 6px;
+  bottom: 6px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(20, 20, 20, 0.8);
   color: white;
   font-size: 0.65rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .quality-card .quality-label {
-  padding: 6px 8px;
-  font-size: 0.75rem;
+  padding: 8px 10px;
+  font-size: 0.78rem;
   color: var(--muted);
   min-height: 1.4em;
+  font-weight: 600;
 }
 
 /* Debug panel */
 
 .debug-panel {
-  margin-top: 20px;
+  margin-top: 22px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 14px;
   overflow: hidden;
 }
 
@@ -287,22 +297,24 @@ button:active:not(:disabled) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: var(--bg-alt);
   font-size: 0.75rem;
   color: var(--muted);
+  font-weight: 600;
 }
 
 .debug-header button {
-  padding: 4px 10px;
+  padding: 5px 12px;
+  border-radius: 20px;
   font-size: 0.7rem;
   background: var(--border);
-  color: var(--text);
+  color: var(--text-soft);
 }
 
 .debug-output {
   margin: 0;
-  padding: 10px 12px;
+  padding: 12px 14px;
   max-height: 180px;
   overflow-y: auto;
   font-family: ui-monospace, monospace;
@@ -310,19 +322,22 @@ button:active:not(:disabled) {
   color: var(--muted);
   white-space: pre-wrap;
   word-break: break-word;
+  background: var(--card);
 }
 
 /* Generic section layout */
 
 .section {
-  padding: 56px 0;
+  padding: 64px 0;
   border-top: 1px solid var(--border);
 }
 
 .section h2 {
   text-align: center;
-  font-size: clamp(1.4rem, 3vw, 1.9rem);
-  margin: 0 0 40px;
+  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  margin: 0 0 44px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 /* Steps */
@@ -336,32 +351,33 @@ button:active:not(:disabled) {
 .step {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px;
+  border-radius: 18px;
+  padding: 28px 24px;
   text-align: center;
+  box-shadow: 0 8px 24px rgba(37, 38, 47, 0.05);
 }
 
 .step-number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: var(--gradient);
   color: white;
-  font-weight: 700;
-  margin: 0 auto 14px;
+  font-weight: 800;
+  margin: 0 auto 16px;
 }
 
 .step h3 {
   margin: 0 0 8px;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
 }
 
 .step p {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   margin: 0;
 }
 
@@ -380,24 +396,25 @@ button:active:not(:disabled) {
 .feature-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 22px;
+  border-radius: 18px;
+  padding: 24px;
   text-align: center;
+  box-shadow: 0 8px 24px rgba(37, 38, 47, 0.05);
 }
 
 .feature-icon {
-  font-size: 1.6rem;
-  margin-bottom: 10px;
+  font-size: 1.7rem;
+  margin-bottom: 12px;
 }
 
 .feature-card h3 {
   margin: 0 0 6px;
-  font-size: 1rem;
+  font-size: 1.02rem;
 }
 
 .feature-card p {
   color: var(--muted);
-  font-size: 0.87rem;
+  font-size: 0.88rem;
   margin: 0;
 }
 
@@ -408,25 +425,26 @@ button:active:not(:disabled) {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .faq-item {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 4px 18px;
+  border-radius: 16px;
+  padding: 4px 20px;
 }
 
 .faq-item summary {
   cursor: pointer;
-  padding: 14px 0;
-  font-weight: 600;
-  font-size: 0.95rem;
+  padding: 16px 0;
+  font-weight: 700;
+  font-size: 0.98rem;
   list-style: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  color: var(--text-soft);
 }
 
 .faq-item summary::-webkit-details-marker {
@@ -435,8 +453,8 @@ button:active:not(:disabled) {
 
 .faq-item summary::after {
   content: '+';
-  font-size: 1.2rem;
-  color: var(--muted);
+  font-size: 1.3rem;
+  color: var(--purple);
   margin-left: 12px;
 }
 
@@ -445,9 +463,9 @@ button:active:not(:disabled) {
 }
 
 .faq-item p {
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
 }
 
 /* Footer */
@@ -492,5 +510,9 @@ button:active:not(:disabled) {
   #btn-mp4,
   #btn-mp3 {
     width: 100%;
+  }
+
+  .download-box {
+    padding: 20px;
   }
 }
