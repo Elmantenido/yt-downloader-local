@@ -34,28 +34,72 @@
         <p class="hero-subtitle" data-i18n="hero_subtitle">Paste a public Instagram link and save it to your device — fast, free, and in the original quality. No app, no login, no watermark.</p>
 
         <div class="download-box">
-          <div class="download-row">
+          <div class="input-row">
+            <label for="url" class="sr-only">Paste Instagram video link here</label>
+            <svg class="input-ig-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="5" fill="#E1306C"></rect>
+              <path d="M9 12a3 3 0 0 1 3-3h2a3 3 0 1 1 0 6h-1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"></path>
+              <path d="M15 12a3 3 0 0 1-3 3H10a3 3 0 1 1 0-6h1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"></path>
+            </svg>
             <input
               id="url"
               type="text"
+              class="url-input"
               data-i18n-placeholder="url_placeholder"
               placeholder="Paste an Instagram link here (post, reel, story...)"
               autocomplete="off"
+              autocorrect="off"
+              autocapitalize="none"
+              spellcheck="false"
+              inputmode="url"
             />
+            <div class="input-actions">
+              <button id="btn-paste" class="btn-paste" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1"></rect></svg>
+                <span data-i18n="btn_paste">Paste</span>
+              </button>
+              <button id="btn-clear" class="btn-clear" type="button" aria-label="Clear input">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
           </div>
 
-          <div class="buttons">
-            <button id="btn-mp4" onclick="download('mp4')">
-              <span class="btn-icon">⬇</span> <span data-i18n="btn_video">Download Video</span>
-            </button>
-            <button id="btn-mp3" onclick="download('mp3')">
-              <span class="btn-icon">♪</span> <span data-i18n="btn_audio">Download Audio (MP3)</span>
-            </button>
-          </div>
+          <button id="btn-fetch" class="btn-download" type="button">
+            <span id="fetch-spinner" class="spinner" hidden aria-hidden="true"></span>
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span id="btn-fetch-text" data-i18n="btn_fetch">DOWNLOAD</span>
+          </button>
 
-          <div id="quality-grid" class="quality-grid" hidden></div>
+          <aside class="fair-use-notice" aria-label="Fair use notice" data-i18n="fair_use_notice">
+            For personal, offline use only. Please respect the original creator's rights.
+          </aside>
 
           <p id="status" class="status"></p>
+
+          <div id="result-box" class="result-box" hidden>
+            <p class="result-label"><span class="check" aria-hidden="true">✓</span> <span data-i18n="result_ready">Your video is ready:</span></p>
+            <figure class="result-thumb-wrap">
+              <img id="result-thumb" class="result-thumb" alt="" referrerpolicy="no-referrer" />
+              <div class="thumb-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </div>
+            </figure>
+            <div class="result-actions">
+              <button id="btn-download-video" class="btn-dl-main" type="button">
+                <span data-i18n="btn_video_hd">Download HD Video</span>
+              </button>
+              <button id="btn-download-audio" class="btn-dl-audio" type="button">
+                <span data-i18n="btn_audio">Download Audio (MP3)</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="error-box" class="error-box" role="alert" hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span id="error-text"></span>
+          </div>
 
           <div id="debug-panel" class="debug-panel" hidden>
             <div class="debug-header">

@@ -1,11 +1,22 @@
 const urlInput = document.getElementById('url');
 const status = document.getElementById('status');
-const qualityGrid = document.getElementById('quality-grid');
+const btnFetch = document.getElementById('btn-fetch');
+const btnFetchText = document.getElementById('btn-fetch-text');
+const fetchSpinner = document.getElementById('fetch-spinner');
+const resultBox = document.getElementById('result-box');
+const resultThumb = document.getElementById('result-thumb');
+const btnDownloadVideo = document.getElementById('btn-download-video');
+const btnDownloadAudio = document.getElementById('btn-download-audio');
+const errorBox = document.getElementById('error-box');
+const errorText = document.getElementById('error-text');
+const btnPaste = document.getElementById('btn-paste');
+const btnClear = document.getElementById('btn-clear');
 
 const INSTAGRAM_URL_RE = /^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|stories)\//i;
 
 let formatsAbortController = null;
 let debounceTimer = null;
+let bestVideoFormatId = null;
 
 function makeJobId() {
   // crypto.randomUUID requiere un contexto seguro (HTTPS o localhost); por
@@ -15,23 +26,44 @@ function makeJobId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function formatBytes(bytes) {
-  if (!bytes) return '';
-  const mb = bytes / (1024 * 1024);
-  return mb >= 1024 ? `${(mb / 1024).toFixed(1)} GB` : `${mb.toFixed(0)} MB`;
+function hideResult() {
+  resultBox.hidden = true;
+  bestVideoFormatId = null;
 }
 
-async function loadQualities() {
-  const url = urlInput.value.trim();
-  qualityGrid.hidden = true;
-  qualityGrid.innerHTML = '';
+function hideError() {
+  errorBox.hidden = true;
+}
 
-  if (!INSTAGRAM_URL_RE.test(url)) return;
+function showError(message) {
+  hideResult();
+  errorText.textContent = message;
+  errorBox.hidden = false;
+}
+
+function setFetching(isFetching) {
+  btnFetch.disabled = isFetching;
+  fetchSpinner.hidden = !isFetching;
+  btnFetchText.textContent = isFetching ? I18N.t('btn_fetching') : I18N.t('btn_fetch');
+}
+
+async function fetchInfo() {
+  const url = urlInput.value.trim();
+  hideResult();
+  hideError();
+  status.textContent = '';
+
+  if (!url) return;
+  if (!INSTAGRAM_URL_RE.test(url)) {
+    showError(I18N.t('status_invalid_link'));
+    return;
+  }
 
   if (formatsAbortController) formatsAbortController.abort();
   formatsAbortController = new AbortController();
 
-  DebugLog.log('Fetching available qualities', url);
+  DebugLog.log('Fetching video info', url);
+  setFetching(true);
 
   let data;
   try {
@@ -40,52 +72,80 @@ async function loadQualities() {
     });
     data = await res.json();
     if (!res.ok) {
-      DebugLog.log('Error fetching qualities', data.error);
+      DebugLog.log('Error fetching info', data.error);
       if (data.detail) DebugLog.log('Server detail', data.detail);
+      showError(data.error || I18N.t('status_generic_error'));
       return;
     }
   } catch (err) {
     if (err.name === 'AbortError') return;
-    DebugLog.log('Network error fetching qualities', err.message);
+    DebugLog.log('Network error fetching info', err.message);
+    showError(I18N.t('status_generic_error'));
+    return;
+  } finally {
+    setFetching(false);
+  }
+
+  DebugLog.log('Video info received', data);
+
+  if (!data.qualities || data.qualities.length === 0) {
+    showError(I18N.t('status_generic_error'));
     return;
   }
 
-  DebugLog.log('Qualities received', data.qualities);
-
-  for (const q of data.qualities) {
-    const dimensions = q.width && q.height ? `${q.width}x${q.height}` : `${q.height}p`;
-    const sizeStr = formatBytes(q.filesize);
-    const sizeLabel = sizeStr ? (q.filesizeApprox ? `~${sizeStr}` : sizeStr) : '';
-    const badgeText = sizeLabel ? `${dimensions} · ${sizeLabel}` : dimensions;
-
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = 'quality-card';
-    card.innerHTML = `
-      <div class="quality-thumb">
-        <img src="${data.thumbnail}" alt="${data.title || ''} ${q.label}" loading="lazy" />
-        <span class="quality-badge">${badgeText}</span>
-      </div>
-      <span class="quality-label">${q.fps ? `${q.fps} fps` : ''}</span>
-    `;
-    card.addEventListener('click', () => download('mp4', q.formatId));
-    qualityGrid.appendChild(card);
-  }
-  qualityGrid.hidden = data.qualities.length === 0;
+  // Las calidades ya vienen ordenadas de mayor a menor resolución desde el
+  // servidor, así que la primera es la mejor disponible para ese post.
+  bestVideoFormatId = data.qualities[0].formatId;
+  resultThumb.src = data.thumbnail || '';
+  resultThumb.alt = data.title || '';
+  hideError();
+  resultBox.hidden = false;
 }
 
 urlInput.addEventListener('input', () => {
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(loadQualities, 600);
+  debounceTimer = setTimeout(fetchInfo, 600);
 });
 urlInput.addEventListener('paste', () => {
-  setTimeout(loadQualities, 50);
+  setTimeout(fetchInfo, 50);
 });
 
+btnFetch.addEventListener('click', fetchInfo);
+
+btnClear.addEventListener('click', () => {
+  urlInput.value = '';
+  hideResult();
+  hideError();
+  status.textContent = '';
+  urlInput.focus();
+});
+
+btnPaste.addEventListener('click', async () => {
+  // navigator.clipboard.readText requiere un contexto seguro (HTTPS o
+  // localhost); por IP+HTTP plano puede no existir o pedir permiso y
+  // fallar. En ese caso, simplemente enfocamos el campo para que el
+  // usuario pegue manualmente (Ctrl/Cmd+V).
+  try {
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        urlInput.value = text.trim();
+        fetchInfo();
+        return;
+      }
+    }
+  } catch (err) {
+    DebugLog.log('Clipboard read failed', err.message);
+  }
+  urlInput.focus();
+});
+
+btnDownloadVideo.addEventListener('click', () => download('mp4', bestVideoFormatId));
+btnDownloadAudio.addEventListener('click', () => download('mp3'));
+
 // Evita que dos descargas se disparen casi al mismo tiempo (por ejemplo, si
-// alguien le da clic al botón MP4 y luego a una calidad de la cuadrícula
-// antes de que termine la primera): dos navegaciones de descarga compitiendo
-// pueden hacer que el navegador cancele o ignore silenciosamente una de ellas.
+// alguien le da doble clic): dos navegaciones de descarga compitiendo pueden
+// hacer que el navegador cancele o ignore silenciosamente una de ellas.
 let downloadInFlight = false;
 
 function download(format, formatId) {

@@ -10,7 +10,12 @@ const I18N = (() => {
       hero_subtitle: 'Paste a public Instagram link and save it to your device — fast, free, and in the original quality. No app, no login, no watermark.',
 
       url_placeholder: 'Paste an Instagram link here (post, reel, story...)',
-      btn_video: 'Download Video',
+      btn_paste: 'Paste',
+      btn_fetch: 'DOWNLOAD',
+      btn_fetching: 'FETCHING...',
+      fair_use_notice: 'For personal, offline use only. Please respect the original creator\'s rights.',
+      result_ready: 'Your video is ready:',
+      btn_video_hd: 'Download HD Video',
       btn_audio: 'Download Audio (MP3)',
 
       steps_title: 'How it works',
@@ -82,7 +87,12 @@ const I18N = (() => {
       hero_subtitle: 'Pega un enlace público de Instagram y guárdalo en tu dispositivo — rápido, gratis y en la calidad original. Sin apps, sin iniciar sesión, sin marca de agua.',
 
       url_placeholder: 'Pega aquí un enlace de Instagram (post, reel, historia...)',
-      btn_video: 'Descargar Video',
+      btn_paste: 'Pegar',
+      btn_fetch: 'DESCARGAR',
+      btn_fetching: 'BUSCANDO...',
+      fair_use_notice: 'Solo para uso personal fuera de línea. Por favor respeta los derechos del creador original.',
+      result_ready: 'Tu video está listo:',
+      btn_video_hd: 'Descargar Video HD',
       btn_audio: 'Descargar Audio (MP3)',
 
       steps_title: 'Cómo funciona',
