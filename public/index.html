@@ -15,24 +15,30 @@
         <span class="brand-name">InstaGrab</span>
       </a>
       <nav class="site-nav">
-        <a href="#how-it-works">How it works</a>
-        <a href="#features">Features</a>
-        <a href="#faq">FAQ</a>
+        <a href="#how-it-works" data-i18n="nav_how">How it works</a>
+        <a href="#features" data-i18n="nav_features">Features</a>
+        <a href="#about" data-i18n="nav_about">About</a>
+        <a href="#faq" data-i18n="nav_faq">FAQ</a>
       </nav>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <a href="/en" class="lang-btn" data-lang="en">EN</a>
+        <a href="/es" class="lang-btn" data-lang="es">ES</a>
+      </div>
     </div>
   </header>
 
   <main>
     <section class="hero">
       <div class="wrap">
-        <h1>Download Instagram Videos, Reels &amp; Photos</h1>
-        <p class="hero-subtitle">Paste a public Instagram link and save it to your device — fast, free, and in the original quality. No app, no login, no watermark.</p>
+        <h1 data-i18n="hero_title">Download Instagram Videos, Reels &amp; Photos</h1>
+        <p class="hero-subtitle" data-i18n="hero_subtitle">Paste a public Instagram link and save it to your device — fast, free, and in the original quality. No app, no login, no watermark.</p>
 
         <div class="download-box">
           <div class="download-row">
             <input
               id="url"
               type="text"
+              data-i18n-placeholder="url_placeholder"
               placeholder="Paste an Instagram link here (post, reel, story...)"
               autocomplete="off"
             />
@@ -40,10 +46,10 @@
 
           <div class="buttons">
             <button id="btn-mp4" onclick="download('mp4')">
-              <span class="btn-icon">⬇</span> Download Video
+              <span class="btn-icon">⬇</span> <span data-i18n="btn_video">Download Video</span>
             </button>
             <button id="btn-mp3" onclick="download('mp3')">
-              <span class="btn-icon">♪</span> Download Audio (MP3)
+              <span class="btn-icon">♪</span> <span data-i18n="btn_audio">Download Audio (MP3)</span>
             </button>
           </div>
 
@@ -64,22 +70,22 @@
 
     <section id="how-it-works" class="section steps-section">
       <div class="wrap">
-        <h2>How it works</h2>
+        <h2 data-i18n="steps_title">How it works</h2>
         <div class="steps">
           <div class="step">
             <div class="step-number">1</div>
-            <h3>Copy the Instagram link</h3>
-            <p>Open Instagram, find the video, reel, or photo you want, tap Share, and copy the link.</p>
+            <h3 data-i18n="step1_title">Copy the Instagram link</h3>
+            <p data-i18n="step1_text">Open the Instagram app, open the post you want, tap the three dots (•••), then tap "Copy Link".</p>
           </div>
           <div class="step">
             <div class="step-number">2</div>
-            <h3>Paste it above</h3>
-            <p>Paste the link into the box at the top of this page. We'll fetch the media automatically.</p>
+            <h3 data-i18n="step2_title">Paste it above</h3>
+            <p data-i18n="step2_text">Paste the link into the box at the top of this page. We'll fetch the media automatically.</p>
           </div>
           <div class="step">
             <div class="step-number">3</div>
-            <h3>Download</h3>
-            <p>Choose video or audio and click download. The file saves straight to your device.</p>
+            <h3 data-i18n="step3_title">Download</h3>
+            <p data-i18n="step3_text">Choose video or audio and click download. The file saves straight to your device — no app, no account.</p>
           </div>
         </div>
       </div>
@@ -87,55 +93,91 @@
 
     <section id="features" class="section features-section">
       <div class="wrap">
-        <h2>Why InstaGrab</h2>
+        <h2 data-i18n="features_title">Why InstaGrab</h2>
         <div class="features-grid">
           <div class="feature-card">
             <div class="feature-icon">⚡</div>
-            <h3>Fast</h3>
-            <p>Downloads start almost instantly, straight from your browser.</p>
+            <h3 data-i18n="feat1_title">Free &amp; fast</h3>
+            <p data-i18n="feat1_text">No hidden fees, no daily limits for normal use. Downloads start almost instantly.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">🖥</div>
-            <h3>Any device</h3>
-            <p>Works on desktop and mobile — no app to install.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">🎞</div>
-            <h3>Original quality</h3>
-            <p>Saves video and audio without extra compression or watermarks.</p>
+            <h3 data-i18n="feat2_title">No app required</h3>
+            <p data-i18n="feat2_text">It's entirely web-based — nothing to install, and no extra app taking up storage on your phone.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">🔒</div>
-            <h3>Private</h3>
-            <p>We don't store your downloads or require an Instagram login.</p>
+            <h3 data-i18n="feat3_title">No login needed</h3>
+            <p data-i18n="feat3_text">You never share your Instagram username or password with us — we only need the post link.</p>
           </div>
+          <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3 data-i18n="feat4_title">Any device</h3>
+            <p data-i18n="feat4_text">Works from your phone, tablet, or computer — any modern browser.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎞</div>
+            <h3 data-i18n="feat5_title">Original quality</h3>
+            <p data-i18n="feat5_text">We fetch the highest quality available for that post, with no extra compression.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎬</div>
+            <h3 data-i18n="feat6_title">Reels, IGTV &amp; photos</h3>
+            <p data-i18n="feat6_text">Works with feed videos, Reels, IGTV, photos, and stories from public accounts.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section about-section">
+      <div class="wrap about-wrap">
+        <div>
+          <h2 data-i18n="about_title">Why we built InstaGrab</h2>
+          <p data-i18n="about_text_1">Instagram is home to some of the best short-form video on the internet — funny, inspiring, educational — but the app itself gives you no built-in way to save a post to your device.</p>
+          <p data-i18n="about_text_2">We ran into that same wall ourselves, so we built a simple, safe, and anonymous way to grab a copy of any public post — no extra app, no account, no login details shared with anyone.</p>
+        </div>
+        <div>
+          <h2 data-i18n="whatis_title">What is Instagram?</h2>
+          <p data-i18n="whatis_text">Instagram is a social network where people share photos and videos and connect through comments, likes, and messages. Creators, brands, and public figures use it to publish everything from quick Reels to longer IGTV videos on topics like tech, music, education, and entertainment.</p>
         </div>
       </div>
     </section>
 
     <section id="faq" class="section faq-section">
       <div class="wrap">
-        <h2>Frequently asked questions</h2>
+        <h2 data-i18n="faq_title">Frequently asked questions</h2>
         <div class="faq-list">
           <details class="faq-item">
-            <summary>What kind of Instagram content can I download?</summary>
-            <p>Public posts, reels, IGTV videos, and stories. The account has to be public — private content can't be fetched.</p>
+            <summary data-i18n="faq1_q">What is an Instagram video downloader?</summary>
+            <p data-i18n="faq1_a">It's a free web tool that lets you save public Instagram videos, Reels, and photos to your device just by pasting the post's link.</p>
           </details>
           <details class="faq-item">
-            <summary>Do I need to log in to Instagram?</summary>
-            <p>No. Just paste the link to the public post or reel you want to save.</p>
+            <summary data-i18n="faq2_q">How do I download a video from Instagram?</summary>
+            <p data-i18n="faq2_a">Copy the link to the post from the Instagram app, paste it into the box above, and click Download.</p>
           </details>
           <details class="faq-item">
-            <summary>Is it free?</summary>
-            <p>Yes, completely free to use.</p>
+            <summary data-i18n="faq3_q">Can I download the video in its original quality?</summary>
+            <p data-i18n="faq3_a">Yes — we fetch the highest quality available for that post, with no extra compression added on our end.</p>
           </details>
           <details class="faq-item">
-            <summary>Can I download just the audio?</summary>
-            <p>Yes — use the "Download Audio (MP3)" button to save just the sound from a video.</p>
+            <summary data-i18n="faq4_q">Is there a download limit?</summary>
+            <p data-i18n="faq4_a">There's no daily limit for normal personal use, though heavy automated use may be rate-limited to keep things fast for everyone.</p>
           </details>
           <details class="faq-item">
-            <summary>Why did my download fail?</summary>
-            <p>Make sure the account is public and the link points directly to a post, reel, or story. Private or deleted content can't be downloaded.</p>
+            <summary data-i18n="faq5_q">Can I download IGTV videos?</summary>
+            <p data-i18n="faq5_a">Yes — the process is the same: copy the IGTV video's link from Instagram and paste it here.</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq6_q">Can I use this on a PC?</summary>
+            <p data-i18n="faq6_a">Yes, just open this page in your computer's browser and paste the link — no software installation needed.</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq7_q">Is downloading Instagram videos legal?</summary>
+            <p data-i18n="faq7_a">Downloading content you have the right to use — your own posts, or content shared with the creator's permission — is fine. Redistributing someone else's content without permission may violate their copyright, so always respect the original creator's rights.</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq8_q">Can I download private Instagram videos?</summary>
+            <p data-i18n="faq8_a">No. Only public posts can be downloaded — private accounts require access we don't have or request.</p>
           </details>
         </div>
       </div>
@@ -144,10 +186,11 @@
 
   <footer class="site-footer">
     <div class="wrap">
-      <p>InstaGrab is an independent tool and is not affiliated with Instagram or Meta. For personal use only.</p>
+      <p data-i18n="footer_text">This tool is for personal and educational use. We don't host any content — all rights belong to the original creators. Instagram and the Instagram logo are trademarks of Instagram/Meta. This site is not affiliated with or endorsed by Instagram.</p>
     </div>
   </footer>
 
+  <script src="i18n.js"></script>
   <script src="debug.js"></script>
   <script src="app.js"></script>
 </body>

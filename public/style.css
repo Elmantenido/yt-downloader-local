@@ -102,6 +102,34 @@ h1, h2, h3 {
   color: var(--text-soft);
 }
 
+.lang-switch {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px;
+}
+
+.lang-btn {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lang-btn:hover {
+  color: var(--text-soft);
+}
+
+.lang-btn.is-active {
+  background: var(--gradient);
+  color: white;
+}
+
 /* Hero */
 
 .hero {
@@ -416,6 +444,33 @@ button:active:not(:disabled) {
   color: var(--muted);
   font-size: 0.88rem;
   margin: 0;
+}
+
+/* About */
+
+.about-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.about-section h2 {
+  text-align: left;
+  font-size: 1.3rem;
+  margin: 0 0 14px;
+}
+
+.about-section p {
+  color: var(--muted);
+  font-size: 0.94rem;
+  margin: 0 0 14px;
+}
+
+@media (max-width: 720px) {
+  .about-wrap {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
 }
 
 /* FAQ */

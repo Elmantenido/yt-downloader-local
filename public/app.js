@@ -82,35 +82,44 @@ urlInput.addEventListener('paste', () => {
   setTimeout(loadQualities, 50);
 });
 
+// Evita que dos descargas se disparen casi al mismo tiempo (por ejemplo, si
+// alguien le da clic al botón MP4 y luego a una calidad de la cuadrícula
+// antes de que termine la primera): dos navegaciones de descarga compitiendo
+// pueden hacer que el navegador cancele o ignore silenciosamente una de ellas.
+let downloadInFlight = false;
+
 function download(format, formatId) {
+  if (downloadInFlight) return;
+
   const url = urlInput.value.trim();
 
   if (!url) {
-    status.textContent = 'Paste an Instagram link first.';
+    status.textContent = I18N.t('status_paste_first');
     return;
   }
   if (!INSTAGRAM_URL_RE.test(url)) {
-    status.textContent = 'That doesn\'t look like a valid Instagram link.';
+    status.textContent = I18N.t('status_invalid_link');
     return;
   }
+
+  downloadInFlight = true;
 
   const jobId = makeJobId();
   let target = `/api/download?url=${encodeURIComponent(url)}&format=${format}&jobId=${jobId}`;
   if (formatId) target += `&formatId=${encodeURIComponent(formatId)}`;
 
   DebugLog.log('Starting download', { url, format, formatId, jobId });
-  status.textContent = 'Connecting...';
+  status.textContent = I18N.t('status_connecting');
 
   // El servidor emite el progreso real de yt-dlp (porcentaje, velocidad, ETA)
   // por Server-Sent Events, así el estado no es solo un spinner ciego.
   const source = new EventSource(`/api/progress/${jobId}`);
-  let iframe;
 
   const stop = (finalText) => {
     DebugLog.log('Closing progress connection', finalText);
     source.close();
     status.textContent = finalText;
-    if (iframe) iframe.remove();
+    downloadInFlight = false;
   };
 
   source.onopen = () => DebugLog.log('EventSource opened');
@@ -123,80 +132,49 @@ function download(format, formatId) {
 
   source.addEventListener('queued', (e) => {
     const { position, active } = JSON.parse(e.data);
-    status.textContent = `In queue... position ${position} (${active} downloads active right now).`;
+    status.textContent = I18N.t('status_queued', position, active);
     DebugLog.log('queued', e.data);
   });
 
   source.addEventListener('started', () => {
-    status.textContent = 'Starting download...';
+    status.textContent = I18N.t('status_started');
     DebugLog.log('started received');
   });
 
   source.addEventListener('progress', (e) => {
     const { percent, total, speed, eta } = JSON.parse(e.data);
-    status.textContent = `Downloading... ${percent}% of ${total} at ${speed} (ETA ${eta})`;
+    status.textContent = I18N.t('status_downloading', percent, total, speed, eta);
     DebugLog.log('progress', e.data);
   });
 
   source.addEventListener('done', () => {
     DebugLog.log('done received');
-    stop('Download ready, saving to your device.');
+    stop(I18N.t('status_done'));
   });
 
   source.addEventListener('error', (e) => {
     DebugLog.log('server error event', e.data || '(no data, likely a normal close)');
     if (e.data) {
       const data = JSON.parse(e.data);
-      stop(data.error || 'Something went wrong while downloading.');
+      stop(data.error || I18N.t('status_generic_error'));
     }
   });
 
-  iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.onload = () => {
-    // Al insertar un iframe sin src, el navegador carga "about:blank" de
-    // inmediato y dispara 'load' para eso: hay que ignorar ese primer disparo,
-    // si no, borrábamos el iframe (cancelando la descarga real) antes de tiempo.
-    let currentHref;
-    try {
-      currentHref = iframe.contentWindow.location.href;
-    } catch (err) {
-      currentHref = '(not accessible)';
-    }
-    DebugLog.log('iframe onload fired', currentHref);
-
-    if (currentHref === 'about:blank') {
-      return;
-    }
-
-    // Si llegamos aquí, el iframe navegó a nuestra URL real y logró cargar un
-    // documento visible: eso solo pasa si el servidor respondió con JSON de
-    // error (una descarga exitosa nunca "carga" un documento, el navegador la
-    // intercepta como archivo adjunto).
-    try {
-      const text = iframe.contentDocument.body.textContent;
-      const data = JSON.parse(text);
-      DebugLog.log('iframe returned JSON', data);
-      stop(data.error || 'Something went wrong while downloading.');
-    } catch (err) {
-      DebugLog.log('iframe onload with unparseable document', String(err));
-    } finally {
-      iframe.remove();
-    }
-  };
-  iframe.onerror = (e) => DebugLog.log('iframe onerror', String(e));
-
-  document.body.appendChild(iframe);
-  iframe.src = target;
-  DebugLog.log('iframe.src set', target);
+  // Navegar directamente (en vez de un iframe oculto) es mucho más compatible
+  // entre navegadores: Safari en particular no dispara de forma confiable las
+  // descargas con "Content-Disposition: attachment" cuando vienen de un
+  // iframe oculto (falla en silencio, sin error visible). Al navegar la
+  // pestaña actual, el navegador detecta el archivo adjunto, muestra el
+  // diálogo/flujo de guardado, y se queda en la misma página sin recargarla.
+  window.location.href = target;
+  DebugLog.log('Navigating to download URL', target);
 
   // Red de seguridad por si el EventSource nunca recibe 'done' (p. ej. se
   // pierde el evento de red): dejamos de esperar tras un rato.
   setTimeout(() => {
     if (source.readyState !== EventSource.CLOSED) {
       DebugLog.log('Safety timeout reached (6 min)');
-      stop('If you don\'t see the download in your browser, try again (the connection may have dropped).');
+      stop(I18N.t('status_timeout'));
     }
-    iframe.remove();
   }, 6 * 60 * 1000);
 }
