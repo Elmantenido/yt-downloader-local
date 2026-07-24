@@ -143,14 +143,10 @@ btnPaste.addEventListener('click', async () => {
 btnDownloadVideo.addEventListener('click', () => download('mp4', bestVideoFormatId));
 btnDownloadAudio.addEventListener('click', () => download('mp3'));
 
-// Evita que dos descargas se disparen casi al mismo tiempo (por ejemplo, si
-// alguien le da doble clic): dos navegaciones de descarga compitiendo pueden
-// hacer que el navegador cancele o ignore silenciosamente una de ellas.
-let downloadInFlight = false;
-
+// Cada descarga usa su propio jobId y su propio EventSource, así que varias
+// pueden correr a la vez sin pisarse (por ejemplo, video y audio del mismo
+// post, o descargas de distintos links en paralelo).
 function download(format, formatId) {
-  if (downloadInFlight) return;
-
   const url = urlInput.value.trim();
 
   if (!url) {
@@ -161,8 +157,6 @@ function download(format, formatId) {
     status.textContent = I18N.t('status_invalid_link');
     return;
   }
-
-  downloadInFlight = true;
 
   const jobId = makeJobId();
   let target = `/api/download?url=${encodeURIComponent(url)}&format=${format}&jobId=${jobId}`;
@@ -179,7 +173,6 @@ function download(format, formatId) {
     DebugLog.log('Closing progress connection', finalText);
     source.close();
     status.textContent = finalText;
-    downloadInFlight = false;
   };
 
   source.onopen = () => DebugLog.log('EventSource opened');
