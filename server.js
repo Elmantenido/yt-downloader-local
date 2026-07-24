@@ -202,6 +202,16 @@ function buildHeadExtras({ code, dict, title, description, url }) {
   ].join('\n');
 }
 
+// i18n.js solo necesita el diccionario del idioma de ESTA página (más "en"
+// como respaldo para claves que falten en una traducción incompleta) — no
+// las 25 traducciones completas. Mandarlas todas infla el HTML a ~175 KiB y
+// bloquea el render (medido con PageSpeed Insights). Se incrusta inline en
+// vez de en un <script src>: así no cuesta una petición de red aparte.
+function buildInlineTranslations(code, dict) {
+  const payload = code === 'en' ? { en: dict } : { [code]: dict, en: TRANSLATIONS.en };
+  return `<script>window.TRANSLATIONS = ${JSON.stringify(payload).replace(/</g, '\\u003c')};</script>`;
+}
+
 function renderIndexHtml(code) {
   const dict = TRANSLATIONS[code] || TRANSLATIONS.en;
   const dir = RTL_CODES.has(code) ? 'rtl' : 'ltr';
@@ -212,6 +222,10 @@ function renderIndexHtml(code) {
   return INDEX_TEMPLATE
     .replace('<html lang="en">', `<html lang="${code}" dir="${dir}">`)
     .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(title)}</title>`)
+    .replace(
+      '<script defer src="i18n.js"></script>',
+      `${buildInlineTranslations(code, dict)}\n  <script defer src="i18n.js"></script>`
+    )
     .replace(
       /<meta name="description" content="[^"]*" \/>/,
       `<meta name="description" content="${escapeHtml(description)}" />`

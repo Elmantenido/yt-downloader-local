@@ -45,8 +45,9 @@ const I18N = (() => {
 
   function t(key, ...args) {
     const entry = dict[key] ?? TRANSLATIONS.en[key];
-    if (typeof entry === 'function') return entry(...args);
-    return entry ?? key;
+    if (entry == null) return key;
+    if (args.length === 0) return entry;
+    return entry.replace(/\{(\d+)\}/g, (_, i) => args[i] ?? '');
   }
 
   function buildLangMenu() {
