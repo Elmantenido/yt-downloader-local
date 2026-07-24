@@ -5,7 +5,6 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { spawn, spawnSync } = require('child_process');
-const https = require('https');
 const ffmpegPath = require('ffmpeg-static');
 const pLimit = require('p-limit');
 const helmet = require('helmet');
@@ -41,7 +40,7 @@ if (process.env.APP_USERNAME && process.env.APP_PASSWORD) {
     basicAuth({
       users: { [process.env.APP_USERNAME]: process.env.APP_PASSWORD },
       challenge: true,
-      realm: 'Descargador de videos',
+      realm: 'Instagram Downloader',
     })
   );
   console.log('[startup] Autenticación activada (APP_USERNAME/APP_PASSWORD).');
@@ -57,14 +56,7 @@ if (process.env.APP_USERNAME && process.env.APP_PASSWORD) {
 const formatsRateLimit = rateLimit({ windowMs: 5 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false });
 const downloadRateLimit = rateLimit({ windowMs: 5 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
 
-const YOUTUBE_URL_RE = /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]+/i;
-const FACEBOOK_URL_RE = /^https?:\/\/(www\.|m\.|web\.)?(facebook\.com\/|fb\.watch\/)/i;
-const TWITTER_URL_RE = /^https?:\/\/(www\.|mobile\.)?(twitter\.com|x\.com)\//i;
 const INSTAGRAM_URL_RE = /^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|stories)\//i;
-const SUPPORTED_URL_RE = new RegExp(
-  `(${YOUTUBE_URL_RE.source})|(${FACEBOOK_URL_RE.source})|(${TWITTER_URL_RE.source})|(${INSTAGRAM_URL_RE.source})`,
-  'i'
-);
 const PROGRESS_RE = /\[download\]\s+([\d.]+)% of\s+([\d.]+\w+) at\s+([\d.]+\w+\/s|Unknown speed) ETA\s+([\d:]+|Unknown)/;
 
 function worksAsExecutable(binPath) {
@@ -102,22 +94,6 @@ if (ffmpegPath) {
 }
 const FFMPEG_LOCATION_ARGS = ffmpegPath ? ['--ffmpeg-location', ffmpegPath] : [];
 
-// YouTube suele pedir verificación "no soy un robot" a IPs de VPS/datacenter,
-// aunque el video sea público. Pasarle cookies de una sesión real logueada
-// evita ese bloqueo. El archivo no se versiona (ver .gitignore) por contener
-// credenciales de sesión.
-const COOKIES_FILE = process.env.YTDLP_COOKIES_FILE || path.join(__dirname, 'cookies.txt');
-const COOKIES_ARGS = fs.existsSync(COOKIES_FILE) ? ['--cookies', COOKIES_FILE] : [];
-
-// YouTube bloquea las IPs de datacenter incluso con cookies (ver hallazgos
-// documentados en el proyecto). Como alternativa de pago, un actor de Apify
-// resuelve el video desde su propia infraestructura y devuelve un archivo ya
-// listo en su storage, evitando el bloqueo por completo. Se activa solo si
-// se configura APIFY_API_TOKEN; si no, YouTube sigue intentándose con yt-dlp
-// (funciona bien en local/Mac, donde la IP no está marcada).
-const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN || null;
-const APIFY_ACTOR = 'streamers~youtube-video-downloader';
-
 // jobId -> SSE response, para avisarle al navegador el progreso real de yt-dlp.
 const progressClients = new Map();
 
@@ -152,11 +128,11 @@ app.get('/api/formats', formatsRateLimit, (req, res) => {
   const { url } = req.query;
   console.log(`[formats] solicitado url=${url}`);
 
-  if (typeof url !== 'string' || !SUPPORTED_URL_RE.test(url)) {
-    return res.status(400).json({ error: 'Enlace no válido. Debe ser de YouTube, Facebook, Twitter/X o Instagram.' });
+  if (typeof url !== 'string' || !INSTAGRAM_URL_RE.test(url)) {
+    return res.status(400).json({ error: 'Invalid link. It must be an Instagram post, reel, or story URL.' });
   }
 
-  const proc = spawn(YTDLP_BIN, ['-J', '--no-playlist', '--no-warnings', ...COOKIES_ARGS, url], { timeout: FORMATS_TIMEOUT_MS });
+  const proc = spawn(YTDLP_BIN, ['-J', '--no-playlist', '--no-warnings', url], { timeout: FORMATS_TIMEOUT_MS });
 
   let stdout = '';
   let stderr = '';
@@ -164,14 +140,14 @@ app.get('/api/formats', formatsRateLimit, (req, res) => {
   proc.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
 
   proc.on('error', (err) => {
-    res.status(500).json({ error: 'No se pudo iniciar yt-dlp: ' + err.message });
+    res.status(500).json({ error: 'Could not start yt-dlp: ' + err.message });
   });
 
   proc.on('close', (code) => {
     if (code !== 0) {
       console.log(`[formats] yt-dlp salió con código ${code}: ${stderr.slice(-500)}`);
       if (!res.headersSent) {
-        res.status(500).json({ error: 'No se pudo obtener información del video.', detail: stderr.slice(-2000) });
+        res.status(500).json({ error: 'Could not fetch video information.', detail: stderr.slice(-2000) });
       }
       return;
     }
@@ -197,9 +173,8 @@ app.get('/api/formats', formatsRateLimit, (req, res) => {
       const qualities = Array.from(byResolution.values())
         .sort((a, b) => b.height - a.height || (b.fps || 0) - (a.fps || 0))
         .map((f) => {
-          // Algunos formatos (frecuente en Facebook, o streams HLS/DASH de
-          // YouTube) no traen filesize ni filesize_approx. En ese caso
-          // estimamos el tamaño a partir del bitrate y la duración del video.
+          // Algunos formatos no traen filesize ni filesize_approx. En ese
+          // caso estimamos el tamaño a partir del bitrate y la duración.
           let filesize = f.filesize || f.filesize_approx || null;
           if (!filesize && f.tbr && info.duration) {
             filesize = Math.round((f.tbr * 1000 / 8) * info.duration);
@@ -214,14 +189,14 @@ app.get('/api/formats', formatsRateLimit, (req, res) => {
               ? `${f.width}x${f.height} · ${f.fps || 30} fps`
               : `${f.height}p${f.fps ? ` · ${f.fps} fps` : ''}`,
             filesize,
-            filesizeApprox: !(f.filesize) ,
+            filesizeApprox: !(f.filesize),
           };
         });
 
       res.json({ title: info.title, thumbnail: info.thumbnail, qualities });
     } catch (err) {
       console.log(`[formats] error al parsear info: ${err.message}`);
-      res.status(500).json({ error: 'No se pudo leer la información del video.' });
+      res.status(500).json({ error: 'Could not read the video information.' });
     }
   });
 });
@@ -230,15 +205,15 @@ app.get('/api/download', downloadRateLimit, (req, res) => {
   const { url, format, jobId, quality, formatId } = req.query;
   console.log(`[download] solicitado url=${url} format=${format}`);
 
-  if (typeof url !== 'string' || !SUPPORTED_URL_RE.test(url)) {
+  if (typeof url !== 'string' || !INSTAGRAM_URL_RE.test(url)) {
     console.log('[download] rechazado: URL no válida');
-    const error = 'Enlace no válido. Debe ser de YouTube, Facebook, Twitter/X o Instagram.';
+    const error = 'Invalid link. It must be an Instagram post, reel, or story URL.';
     if (jobId) sendProgress(jobId, 'error', { error });
     return res.status(400).json({ error });
   }
   if (format !== 'mp4' && format !== 'mp3') {
     console.log('[download] rechazado: formato no válido');
-    const error = 'Formato no válido. Usa mp4 o mp3.';
+    const error = 'Invalid format. Use mp4 or mp3.';
     if (jobId) sendProgress(jobId, 'error', { error });
     return res.status(400).json({ error });
   }
@@ -257,11 +232,6 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
   // resuelve, así que se resuelve al final de cada camino posible (éxito,
   // error de spawn, código de salida distinto de cero, envío completado).
   return new Promise((resolveJob) => {
-  if (APIFY_API_TOKEN && YOUTUBE_URL_RE.test(url)) {
-    runYoutubeViaApify({ url, format, jobId, res, resolveJob });
-    return;
-  }
-
   if (jobId) sendProgress(jobId, 'started', {});
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ytdl-'));
@@ -281,8 +251,8 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
       : 'bv*[vcodec^=avc1]+ba[acodec^=mp4a]/bv*+ba/b';
 
   const args = format === 'mp4'
-    ? ['-f', videoFormat, '--merge-output-format', 'mp4', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, ...COOKIES_ARGS, '-o', outputTemplate, url]
-    : ['-x', '--audio-format', 'mp3', '--audio-quality', '0', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, ...COOKIES_ARGS, '-o', outputTemplate, url];
+    ? ['-f', videoFormat, '--merge-output-format', 'mp4', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, '-o', outputTemplate, url]
+    : ['-x', '--audio-format', 'mp3', '--audio-quality', '0', '--no-playlist', '--newline', ...FFMPEG_LOCATION_ARGS, '-o', outputTemplate, url];
 
   const proc = spawn(YTDLP_BIN, args, { timeout: DOWNLOAD_TIMEOUT_MS });
 
@@ -313,9 +283,9 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
 
   proc.on('error', (err) => {
     cleanup(tmpDir);
-    if (jobId) sendProgress(jobId, 'error', { error: 'No se pudo iniciar yt-dlp: ' + err.message });
+    if (jobId) sendProgress(jobId, 'error', { error: 'Could not start yt-dlp: ' + err.message });
     if (!res.headersSent) {
-      res.status(500).json({ error: 'No se pudo iniciar yt-dlp: ' + err.message });
+      res.status(500).json({ error: 'Could not start yt-dlp: ' + err.message });
     }
     resolveJob();
   });
@@ -324,7 +294,7 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
     if (code !== 0) {
       console.log(`[download] yt-dlp salió con código ${code}: ${stderr.slice(-500)}`);
       cleanup(tmpDir);
-      const error = 'Falló la descarga.';
+      const error = 'The download failed.';
       const detail = stderr.slice(-500);
       if (jobId) sendProgress(jobId, 'error', { error, detail });
       if (!res.headersSent) {
@@ -340,7 +310,7 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
     if (!resultFile) {
       console.log('[download] yt-dlp terminó bien pero no generó archivo');
       cleanup(tmpDir);
-      const error = 'No se generó ningún archivo.';
+      const error = 'No file was generated.';
       if (jobId) sendProgress(jobId, 'error', { error });
       if (!res.headersSent) {
         res.status(500).json({ error });
@@ -359,106 +329,6 @@ function runDownload({ url, format, jobId, quality, formatId, res }) {
       resolveJob();
     });
   });
-  });
-}
-
-async function runYoutubeViaApify({ url, format, jobId, res, resolveJob }) {
-  if (jobId) sendProgress(jobId, 'started', {});
-
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ytdl-apify-'));
-
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
-
-    let apifyRes;
-    try {
-      apifyRes = await fetch(
-        `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${APIFY_API_TOKEN}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            videos: [{ url }],
-            preferredFormat: format === 'mp3' ? 'mp3' : 'mp4',
-            ...(format === 'mp4' ? { preferredQuality: '720p' } : {}),
-          }),
-          signal: controller.signal,
-        }
-      );
-    } finally {
-      clearTimeout(timeout);
-    }
-
-    const items = await apifyRes.json();
-    if (!apifyRes.ok || !Array.isArray(items) || !items[0] || !items[0].downloadedFileUrl) {
-      throw new Error(
-        `Apify respondió sin archivo utilizable (HTTP ${apifyRes.status}): ${JSON.stringify(items).slice(0, 500)}`
-      );
-    }
-
-    const { downloadedFileUrl, fileKey } = items[0];
-    const resultFile = fileKey || `${Date.now()}.${format}`;
-    const filePath = path.join(tmpDir, resultFile);
-
-    await downloadFileWithProgress(downloadedFileUrl, filePath, jobId);
-
-    console.log(`[download] enviando archivo ${resultFile} (vía Apify)`);
-    if (jobId) sendProgress(jobId, 'done', {});
-    res.download(filePath, resultFile, (err) => {
-      if (err) console.log(`[download] error al enviar el archivo (Apify): ${err.message}`);
-      else console.log('[download] envío completado (Apify)');
-      cleanup(tmpDir);
-      resolveJob();
-    });
-  } catch (err) {
-    console.log(`[download] error vía Apify: ${err.message}`);
-    cleanup(tmpDir);
-    const error = 'Falló la descarga.';
-    const detail = err.message;
-    if (jobId) sendProgress(jobId, 'error', { error, detail });
-    if (!res.headersSent) {
-      res.status(500).json({ error, detail });
-    }
-    resolveJob();
-  }
-}
-
-// Descarga el archivo ya procesado desde el storage de Apify (un dominio
-// normal, sin relación con YouTube, así que nunca dispara el bloqueo) y va
-// reportando progreso real por bytes recibidos, en el mismo formato que usan
-// los eventos SSE del flujo de yt-dlp.
-function downloadFileWithProgress(fileUrl, destPath, jobId) {
-  return new Promise((resolve, reject) => {
-    https.get(fileUrl, (response) => {
-      if (response.statusCode !== 200) {
-        reject(new Error(`No se pudo descargar el archivo de Apify (HTTP ${response.statusCode})`));
-        return;
-      }
-
-      const totalBytes = parseInt(response.headers['content-length'] || '0', 10);
-      let downloadedBytes = 0;
-      const startTime = Date.now();
-      const fileStream = fs.createWriteStream(destPath);
-
-      response.on('data', (chunk) => {
-        downloadedBytes += chunk.length;
-        if (jobId && totalBytes) {
-          const elapsedSec = (Date.now() - startTime) / 1000;
-          const speedMBs = elapsedSec > 0 ? (downloadedBytes / 1024 / 1024 / elapsedSec).toFixed(2) : '0';
-          sendProgress(jobId, 'progress', {
-            percent: ((downloadedBytes / totalBytes) * 100).toFixed(1),
-            total: `${(totalBytes / 1024 / 1024).toFixed(1)}MiB`,
-            speed: `${speedMBs}MiB/s`,
-            eta: 'N/A',
-          });
-        }
-      });
-
-      response.pipe(fileStream);
-      fileStream.on('finish', () => fileStream.close(() => resolve()));
-      fileStream.on('error', reject);
-    }).on('error', reject);
   });
 }
 

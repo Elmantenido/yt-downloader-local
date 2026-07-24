@@ -5,7 +5,7 @@ const DebugLog = (() => {
   const lines = [];
 
   function timestamp() {
-    return new Date().toLocaleTimeString('es', { hour12: false });
+    return new Date().toLocaleTimeString('en-US', { hour12: false });
   }
 
   function log(label, detail) {
@@ -20,16 +20,16 @@ const DebugLog = (() => {
   }
 
   window.addEventListener('error', (e) => {
-    log('Error de JavaScript', `${e.message} (${e.filename}:${e.lineno}:${e.colno})`);
+    log('JavaScript error', `${e.message} (${e.filename}:${e.lineno}:${e.colno})`);
   });
 
   window.addEventListener('unhandledrejection', (e) => {
-    log('Promesa rechazada sin manejar', e.reason && e.reason.message ? e.reason.message : String(e.reason));
+    log('Unhandled promise rejection', e.reason && e.reason.message ? e.reason.message : String(e.reason));
   });
 
   function markCopied() {
-    copyBtn.textContent = 'Copiado';
-    setTimeout(() => { copyBtn.textContent = 'Copiar log'; }, 1500);
+    copyBtn.textContent = 'Copied';
+    setTimeout(() => { copyBtn.textContent = 'Copy log'; }, 1500);
   }
 
   copyBtn.addEventListener('click', () => {

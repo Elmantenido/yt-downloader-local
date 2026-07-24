@@ -1,67 +1,18 @@
 const urlInput = document.getElementById('url');
 const status = document.getElementById('status');
 const qualityGrid = document.getElementById('quality-grid');
-const menuScreen = document.getElementById('menu-screen');
-const downloaderScreen = document.getElementById('downloader-screen');
-const downloaderTitle = document.getElementById('downloader-title');
-const downloaderSubtitle = document.getElementById('downloader-subtitle');
 
-const PLATFORMS = {
-  youtube: {
-    label: 'YouTube',
-    urlRegex: /^https?:\/\/(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]+/i,
-    placeholder: 'https://www.youtube.com/watch?v=...',
-  },
-  facebook: {
-    label: 'Facebook',
-    urlRegex: /^https?:\/\/(www\.|m\.|web\.)?(facebook\.com\/|fb\.watch\/)/i,
-    placeholder: 'https://www.facebook.com/.../videos/...',
-  },
-  twitter: {
-    label: 'Twitter / X',
-    urlRegex: /^https?:\/\/(www\.|mobile\.)?(twitter\.com|x\.com)\//i,
-    placeholder: 'https://x.com/usuario/status/...',
-  },
-  instagram: {
-    label: 'Instagram',
-    urlRegex: /^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|stories)\//i,
-    placeholder: 'https://www.instagram.com/reel/...',
-  },
-};
+const INSTAGRAM_URL_RE = /^https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|stories)\//i;
 
-let currentPlatform = null;
 let formatsAbortController = null;
 let debounceTimer = null;
 
 function makeJobId() {
-  // crypto.randomUUID también requiere un contexto seguro (HTTPS o
-  // localhost); por IP+HTTP plano no existe. No hace falta que sea
-  // criptográficamente segura, solo única para trackear el progreso.
+  // crypto.randomUUID requiere un contexto seguro (HTTPS o localhost); por
+  // IP+HTTP plano no existe. No hace falta que sea criptográficamente
+  // segura, solo única para trackear el progreso.
   if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-function openPlatform(name) {
-  currentPlatform = name;
-  const platform = PLATFORMS[name];
-
-  urlInput.value = '';
-  urlInput.placeholder = platform.placeholder;
-  downloaderTitle.textContent = `Descargador de ${platform.label}`;
-  downloaderSubtitle.textContent = 'Pega un enlace y elige el formato.';
-  status.textContent = '';
-  qualityGrid.hidden = true;
-  qualityGrid.innerHTML = '';
-
-  menuScreen.hidden = true;
-  downloaderScreen.hidden = false;
-  urlInput.focus();
-}
-
-function closePlatform() {
-  currentPlatform = null;
-  downloaderScreen.hidden = true;
-  menuScreen.hidden = false;
 }
 
 function formatBytes(bytes) {
@@ -75,17 +26,12 @@ async function loadQualities() {
   qualityGrid.hidden = true;
   qualityGrid.innerHTML = '';
 
-  if (!currentPlatform || !PLATFORMS[currentPlatform].urlRegex.test(url)) return;
-
-  // YouTube en el VPS pasa por una API de pago (Apify) que no ofrece una
-  // llamada gratuita para solo listar calidades, así que se usan los botones
-  // fijos de MP4/MP3 en vez de la cuadrícula con miniaturas.
-  if (currentPlatform === 'youtube') return;
+  if (!INSTAGRAM_URL_RE.test(url)) return;
 
   if (formatsAbortController) formatsAbortController.abort();
   formatsAbortController = new AbortController();
 
-  DebugLog.log('Buscando calidades disponibles', url);
+  DebugLog.log('Fetching available qualities', url);
 
   let data;
   try {
@@ -94,17 +40,17 @@ async function loadQualities() {
     });
     data = await res.json();
     if (!res.ok) {
-      DebugLog.log('Error al obtener calidades', data.error);
-      if (data.detail) DebugLog.log('Detalle del servidor', data.detail);
+      DebugLog.log('Error fetching qualities', data.error);
+      if (data.detail) DebugLog.log('Server detail', data.detail);
       return;
     }
   } catch (err) {
     if (err.name === 'AbortError') return;
-    DebugLog.log('Error de red al obtener calidades', err.message);
+    DebugLog.log('Network error fetching qualities', err.message);
     return;
   }
 
-  DebugLog.log('Calidades recibidas', data.qualities);
+  DebugLog.log('Qualities received', data.qualities);
 
   for (const q of data.qualities) {
     const dimensions = q.width && q.height ? `${q.width}x${q.height}` : `${q.height}p`;
@@ -140,7 +86,11 @@ function download(format, formatId) {
   const url = urlInput.value.trim();
 
   if (!url) {
-    status.textContent = 'Pega un enlace primero.';
+    status.textContent = 'Paste an Instagram link first.';
+    return;
+  }
+  if (!INSTAGRAM_URL_RE.test(url)) {
+    status.textContent = 'That doesn\'t look like a valid Instagram link.';
     return;
   }
 
@@ -148,8 +98,8 @@ function download(format, formatId) {
   let target = `/api/download?url=${encodeURIComponent(url)}&format=${format}&jobId=${jobId}`;
   if (formatId) target += `&formatId=${encodeURIComponent(formatId)}`;
 
-  DebugLog.log('Iniciando descarga', { url, format, formatId, jobId });
-  status.textContent = 'Conectando...';
+  DebugLog.log('Starting download', { url, format, formatId, jobId });
+  status.textContent = 'Connecting...';
 
   // El servidor emite el progreso real de yt-dlp (porcentaje, velocidad, ETA)
   // por Server-Sent Events, así el estado no es solo un spinner ciego.
@@ -157,47 +107,47 @@ function download(format, formatId) {
   let iframe;
 
   const stop = (finalText) => {
-    DebugLog.log('Cerrando conexión de progreso', finalText);
+    DebugLog.log('Closing progress connection', finalText);
     source.close();
     status.textContent = finalText;
     if (iframe) iframe.remove();
   };
 
-  source.onopen = () => DebugLog.log('EventSource abierto');
+  source.onopen = () => DebugLog.log('EventSource opened');
 
-  source.onerror = (e) => {
+  source.onerror = () => {
     // EventSource dispara 'onerror' tanto en errores reales de conexión
     // como al cerrarse la conexión normalmente tras 'done' o 'error'.
-    DebugLog.log('EventSource onerror (nativo)', `readyState=${source.readyState}`);
+    DebugLog.log('EventSource onerror (native)', `readyState=${source.readyState}`);
   };
 
   source.addEventListener('queued', (e) => {
     const { position, active } = JSON.parse(e.data);
-    status.textContent = `En cola... posición ${position} (${active} descargas activas ahora mismo).`;
+    status.textContent = `In queue... position ${position} (${active} downloads active right now).`;
     DebugLog.log('queued', e.data);
   });
 
   source.addEventListener('started', () => {
-    status.textContent = 'Iniciando descarga...';
-    DebugLog.log('started recibido');
+    status.textContent = 'Starting download...';
+    DebugLog.log('started received');
   });
 
   source.addEventListener('progress', (e) => {
     const { percent, total, speed, eta } = JSON.parse(e.data);
-    status.textContent = `Descargando... ${percent}% de ${total} a ${speed} (ETA ${eta})`;
+    status.textContent = `Downloading... ${percent}% of ${total} at ${speed} (ETA ${eta})`;
     DebugLog.log('progress', e.data);
   });
 
   source.addEventListener('done', () => {
-    DebugLog.log('done recibido');
-    stop('Descarga lista, tu navegador la está guardando.');
+    DebugLog.log('done received');
+    stop('Download ready, saving to your device.');
   });
 
   source.addEventListener('error', (e) => {
-    DebugLog.log('evento error (servidor)', e.data || '(sin data, probablemente cierre normal)');
+    DebugLog.log('server error event', e.data || '(no data, likely a normal close)');
     if (e.data) {
       const data = JSON.parse(e.data);
-      stop(data.error || 'Ocurrió un error al descargar.');
+      stop(data.error || 'Something went wrong while downloading.');
     }
   });
 
@@ -211,9 +161,9 @@ function download(format, formatId) {
     try {
       currentHref = iframe.contentWindow.location.href;
     } catch (err) {
-      currentHref = '(no accesible)';
+      currentHref = '(not accessible)';
     }
-    DebugLog.log('iframe onload disparado', currentHref);
+    DebugLog.log('iframe onload fired', currentHref);
 
     if (currentHref === 'about:blank') {
       return;
@@ -226,10 +176,10 @@ function download(format, formatId) {
     try {
       const text = iframe.contentDocument.body.textContent;
       const data = JSON.parse(text);
-      DebugLog.log('iframe devolvió JSON', data);
-      stop(data.error || 'Ocurrió un error al descargar.');
+      DebugLog.log('iframe returned JSON', data);
+      stop(data.error || 'Something went wrong while downloading.');
     } catch (err) {
-      DebugLog.log('iframe onload con documento no parseable', String(err));
+      DebugLog.log('iframe onload with unparseable document', String(err));
     } finally {
       iframe.remove();
     }
@@ -238,14 +188,14 @@ function download(format, formatId) {
 
   document.body.appendChild(iframe);
   iframe.src = target;
-  DebugLog.log('iframe.src asignado', target);
+  DebugLog.log('iframe.src set', target);
 
   // Red de seguridad por si el EventSource nunca recibe 'done' (p. ej. se
   // pierde el evento de red): dejamos de esperar tras un rato.
   setTimeout(() => {
     if (source.readyState !== EventSource.CLOSED) {
-      DebugLog.log('Timeout de seguridad alcanzado (6 min)');
-      stop('Si no ves la descarga en tu navegador, intenta de nuevo (puede haber fallado la conexión).');
+      DebugLog.log('Safety timeout reached (6 min)');
+      stop('If you don\'t see the download in your browser, try again (the connection may have dropped).');
     }
     iframe.remove();
   }, 6 * 60 * 1000);

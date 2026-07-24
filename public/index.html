@@ -1,68 +1,152 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Descargador de videos (uso personal)</title>
+  <title>InstaGrab — Download Instagram Videos, Reels &amp; Photos</title>
+  <meta name="description" content="Download Instagram videos, Reels, photos and stories fast, free, and in the original quality." />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="card">
-    <section id="menu-screen">
-      <h1>Descargador de videos</h1>
-      <p class="subtitle">Herramienta de uso personal. Elige de dónde quieres descargar.</p>
+  <header class="site-header">
+    <div class="wrap site-header-inner">
+      <a href="#" class="brand">
+        <span class="brand-mark">IG</span>
+        <span class="brand-name">InstaGrab</span>
+      </a>
+      <nav class="site-nav">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </div>
+  </header>
 
-      <div class="platform-menu">
-        <button type="button" class="platform-card platform-youtube" onclick="openPlatform('youtube')">
-          <span class="platform-icon">▶</span>
-          <span class="platform-name">YouTube</span>
-        </button>
-        <button type="button" class="platform-card platform-facebook" onclick="openPlatform('facebook')">
-          <span class="platform-icon">f</span>
-          <span class="platform-name">Facebook</span>
-        </button>
-        <button type="button" class="platform-card platform-twitter" onclick="openPlatform('twitter')">
-          <span class="platform-icon">𝕏</span>
-          <span class="platform-name">Twitter / X</span>
-        </button>
-        <button type="button" class="platform-card platform-instagram" onclick="openPlatform('instagram')">
-          <span class="platform-icon">◎</span>
-          <span class="platform-name">Instagram</span>
-        </button>
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <h1>Download Instagram Videos, Reels &amp; Photos</h1>
+        <p class="hero-subtitle">Paste a public Instagram link and save it to your device — fast, free, and in the original quality. No app, no login, no watermark.</p>
+
+        <div class="download-box">
+          <div class="download-row">
+            <input
+              id="url"
+              type="text"
+              placeholder="Paste an Instagram link here (post, reel, story...)"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="buttons">
+            <button id="btn-mp4" onclick="download('mp4')">
+              <span class="btn-icon">⬇</span> Download Video
+            </button>
+            <button id="btn-mp3" onclick="download('mp3')">
+              <span class="btn-icon">♪</span> Download Audio (MP3)
+            </button>
+          </div>
+
+          <div id="quality-grid" class="quality-grid" hidden></div>
+
+          <p id="status" class="status"></p>
+
+          <div id="debug-panel" class="debug-panel" hidden>
+            <div class="debug-header">
+              <span>Debug log</span>
+              <button id="debug-copy" type="button">Copy log</button>
+            </div>
+            <pre id="debug-output" class="debug-output"></pre>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="downloader-screen" hidden>
-      <button type="button" class="back-button" onclick="closePlatform()">&larr; Volver</button>
-
-      <h1 id="downloader-title">Descargador</h1>
-      <p class="subtitle" id="downloader-subtitle">Pega un enlace y elige el formato.</p>
-
-      <input
-        id="url"
-        type="text"
-        placeholder="https://..."
-        autocomplete="off"
-      />
-
-      <div class="buttons">
-        <button id="btn-mp4" onclick="download('mp4')">Descargar MP4</button>
-        <button id="btn-mp3" onclick="download('mp3')">Descargar MP3</button>
-      </div>
-
-      <div id="quality-grid" class="quality-grid" hidden></div>
-
-      <p id="status" class="status"></p>
-
-      <div id="debug-panel" class="debug-panel" hidden>
-        <div class="debug-header">
-          <span>Registro de depuración</span>
-          <button id="debug-copy" type="button">Copiar log</button>
+    <section id="how-it-works" class="section steps-section">
+      <div class="wrap">
+        <h2>How it works</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Copy the Instagram link</h3>
+            <p>Open Instagram, find the video, reel, or photo you want, tap Share, and copy the link.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>Paste it above</h3>
+            <p>Paste the link into the box at the top of this page. We'll fetch the media automatically.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>Download</h3>
+            <p>Choose video or audio and click download. The file saves straight to your device.</p>
+          </div>
         </div>
-        <pre id="debug-output" class="debug-output"></pre>
+      </div>
+    </section>
+
+    <section id="features" class="section features-section">
+      <div class="wrap">
+        <h2>Why InstaGrab</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Fast</h3>
+            <p>Downloads start almost instantly, straight from your browser.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🖥</div>
+            <h3>Any device</h3>
+            <p>Works on desktop and mobile — no app to install.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎞</div>
+            <h3>Original quality</h3>
+            <p>Saves video and audio without extra compression or watermarks.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Private</h3>
+            <p>We don't store your downloads or require an Instagram login.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="section faq-section">
+      <div class="wrap">
+        <h2>Frequently asked questions</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>What kind of Instagram content can I download?</summary>
+            <p>Public posts, reels, IGTV videos, and stories. The account has to be public — private content can't be fetched.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Do I need to log in to Instagram?</summary>
+            <p>No. Just paste the link to the public post or reel you want to save.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is it free?</summary>
+            <p>Yes, completely free to use.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Can I download just the audio?</summary>
+            <p>Yes — use the "Download Audio (MP3)" button to save just the sound from a video.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Why did my download fail?</summary>
+            <p>Make sure the account is public and the link points directly to a post, reel, or story. Private or deleted content can't be downloaded.</p>
+          </details>
+        </div>
       </div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>InstaGrab is an independent tool and is not affiliated with Instagram or Meta. For personal use only.</p>
+    </div>
+  </footer>
 
   <script src="debug.js"></script>
   <script src="app.js"></script>
