@@ -33,6 +33,19 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet({ contentSecurityPolicy: false }));
 app.set('trust proxy', 1);
 
+// www.instadownr.com servía el mismo contenido que instadownr.com en vez de
+// redirigir, así que Google veía cada página duplicada dos veces (con y sin
+// "www"). El <link rel="canonical"> ya apuntaba al dominio sin "www" y por
+// eso Search Console las excluía correctamente ("página alternativa con
+// etiqueta canónica adecuada"), pero lo correcto es no publicar el
+// duplicado: redirigir antes de que llegue a cualquier ruta.
+app.use((req, res, next) => {
+  if (req.hostname === 'www.instadownr.com') {
+    return res.redirect(301, `https://instadownr.com${req.originalUrl}`);
+  }
+  next();
+});
+
 // Sin usuario/contraseña configurados, cualquiera con la IP puede usar el
 // servidor como descargador gratuito (consumiendo tu ancho de banda y CPU).
 // Se activa solo si se definen ambas variables de entorno.
